@@ -69,3 +69,16 @@ adb shell pm list packages -f -3
 PACKAGE=com.termux
 adb shell dumpsys package | grep -Eo $(printf "^[[:space:]]+[0-9a-f]+[[:space:]]+%s/[^[:space:]]+" "${PACKAGE}") | grep -oE "[^[:space:]]+$"
 ```
+
+## Account Setup
+
+- Go to https://accounts.kakao.com and create an account:
+```
+hans-erich.kober@ulm-dsl.de
+peterock
+kBB5mmmE
+```
+- In the KakaoTalk app, login with your E-Mail address:
+  - When prompted add your phone number
+  - Next, you have to send a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) from your actual phone to a KakaoTalk phone number (you won't receive any SMS response back)
+  - Tap the "Check Authorization" button in the app and the registration process should be completed
