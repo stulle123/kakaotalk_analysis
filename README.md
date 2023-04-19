@@ -103,6 +103,8 @@ frida --codeshare pcipolloni/universal-android-ssl-pinning-bypass-with-frida -U 
 ```bash
 # Start KakaoTalk
 adb shell am start com.kakao.talk
+# Stop KakaoTalk
+adb shell am force-stop com.kakao.talk
 # Start Termux
 adb shell am start com.termux/.HomeActivity
 # List 3rd-party Packages
