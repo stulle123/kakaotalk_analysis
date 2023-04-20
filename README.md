@@ -34,7 +34,7 @@ sed -i -r 's/hw.keyboard = no/hw.keyboard = yes/' ~/.android/avd/kakao.avd/confi
 sed -i -r 's/hw.mainKeys = yes/hw.mainKeys = no/' ~/.android/avd/kakao.avd/config.ini
 ```
 
-## SSH
+### SSH
 
 ```bash
 # Download Termux from https://github.com/termux/termux-app and install it, e.g.:
@@ -56,7 +56,7 @@ exit
 ssh -p 4444 localhost
 ```
 
-## Configure Emulator to work with Burp Suite
+### Configure Emulator to work with Burp Suite
 
 - Export Burp's CA certificate in `DER` format
 - Next, follow these steps:
@@ -77,7 +77,7 @@ adb reboot
 ```
 **Note**, that you have to start the emulator with `-writable-system`. Otherwise, Burp's certificate doesn't show up in Androids's trusted CA store (`Settings` -> `Security` -> `Encryption and credentials` -> `Trusted credentials`) 🙈
 
-## Setup Frida to disable Certificate Pinning
+### Setup Frida to disable Certificate Pinning
 
 ```bash
 # Install Frida
@@ -98,6 +98,21 @@ adb push burp_ca_cert.der /data/local/tmp/cert-der.crt
 frida --codeshare pcipolloni/universal-android-ssl-pinning-bypass-with-frida -U -f com.kakao.talk
 ```
 
+### KakaoTalk Account Setup
+
+- Grab a trash email account (e.g., from https://ulm-dsl.de/)
+- Grab a trash phone number to receive SMS messages (e.g., https://onlinesim.io)
+- Go to https://accounts.kakao.com and create an account:
+```
+hans-erich.kober@ulm-dsl.de
+peterock
+kBB5mmmE
++4915510586583
+```
+- In the KakaoTalk app, login with your email address:
+  - When prompted add your phone number
+  - **Optional**: you may have to send a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) from your actual phone to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check Authorization` button in the app and the registration process should be completed.
+
 ## Misc Commands
 
 ```bash
@@ -116,17 +131,11 @@ adb shell dumpsys package | grep -Eo $(printf "^[[:space:]]+[0-9a-f]+[[:space:]]
 adb shell am start -a android.settings.SETTINGS
 ```
 
-## KakaoTalk Account Setup
+## Possible E2E Attack Vectors
 
-- Grab a trash email account (e.g., from https://ulm-dsl.de/)
-- Grab a trash phone number to receive SMS messages (e.g., https://onlinesim.io)
-- Go to https://accounts.kakao.com and create an account:
-```
-hans-erich.kober@ulm-dsl.de
-peterock
-kBB5mmmE
-+4915510586583
-```
-- In the KakaoTalk app, login with your email address:
-  - When prompted add your phone number
-  - **Optional**: you may have to send a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) from your actual phone to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check Authorization` button in the app and the registration process should be completed.
+- Register an attacker's device to the victim's KakaoTalk account
+- MITM the protocol on the wire
+- Operator-side MITM (e.g., by changing public keys)
+- Tamper with the ciphertext on the wire -> code injection
+- Send a chat message to a victim to retrieve the E2E encryption key -> code injection
+- Install a malcious app on the victim's device to retrieve the E2E key via IPC
