@@ -118,13 +118,15 @@ adb shell am start -a android.settings.SETTINGS
 
 ## KakaoTalk Account Setup
 
+- Grab a trash email account (e.g., from https://ulm-dsl.de/)
+- Grab a trash phone number to receive SMS messages (e.g., https://onlinesim.io)
 - Go to https://accounts.kakao.com and create an account:
 ```
 hans-erich.kober@ulm-dsl.de
 peterock
 kBB5mmmE
++4915510586583
 ```
-- In the KakaoTalk app, login with your E-Mail address:
+- In the KakaoTalk app, login with your email address:
   - When prompted add your phone number
-  - Next, you have to send a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) from your actual phone to a KakaoTalk phone number (you won't receive any SMS response back)
-  - Tap the "Check Authorization" button in the app and the registration process should be completed
+  - **Optional**: you may have to send a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) from your actual phone to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check Authorization` button in the app and the registration process should be completed.
