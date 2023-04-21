@@ -102,12 +102,15 @@ frida --codeshare pcipolloni/universal-android-ssl-pinning-bypass-with-frida -U 
 
 - Grab a trash email account (e.g., from https://ulm-dsl.de/)
 - Grab a trash phone number to receive SMS messages (e.g., https://onlinesim.io)
-- Go to https://accounts.kakao.com and create an account:
+- Open a new Incognito window, go to https://accounts.kakao.com and create an account:
 ```
 hans-erich.kober@ulm-dsl.de
 peterock
 kBB5mmmE
-+4915510586583
+
+folkert.dachs@ulm-dsl.de
+peterplan
+fMcz2Jtr
 ```
 - In the KakaoTalk app, login with your email address:
   - When prompted add your phone number
