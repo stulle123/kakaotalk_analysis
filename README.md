@@ -113,6 +113,18 @@ kBB5mmmE
   - When prompted add your phone number
   - **Optional**: you may have to send a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) from your actual phone to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check Authorization` button in the app and the registration process should be completed.
 
+### Tools to play with
+
+- https://github.com/skylot/jadx
+- https://github.com/quark-engine/quark-engine
+- Frida scripts
+  - https://codeshare.frida.re/@fadeevab/intercept-android-apk-crypto-operations/
+  - https://codeshare.frida.re/@dzonerzy/aesinfo/
+- https://github.com/sensepost/objection
+- https://github.com/MobSF/Mobile-Security-Framework-MobSF
+- https://github.com/JakeWharton/pidcat
+  - Hint: if only color codes are printed, try this [fix](https://github.com/JakeWharton/pidcat/issues/182)
+
 ## Misc Commands
 
 ```bash
@@ -139,3 +151,8 @@ adb shell am start -a android.settings.SETTINGS
 - Tamper with the ciphertext on the wire -> code injection
 - Send a chat message to a victim to retrieve the E2E encryption key -> code injection
 - Install a malcious app on the victim's device to retrieve the E2E key via IPC
+
+## Resources
+
+- https://github.com/KiwiTalk/KiwiTalk
+- https://github.com/jhleekr/kakao.py
