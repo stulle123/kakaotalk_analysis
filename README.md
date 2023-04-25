@@ -124,6 +124,7 @@ fMcz2Jtr
 - https://github.com/skylot/jadx
 - https://github.com/quark-engine/quark-engine
 - Frida scripts
+  - https://github.com/WithSecureLabs/android-keystore-audit
   - https://codeshare.frida.re/@fadeevab/intercept-android-apk-crypto-operations/
   - https://codeshare.frida.re/@dzonerzy/aesinfo/
 - https://github.com/sensepost/objection
