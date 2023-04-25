@@ -83,6 +83,7 @@ adb reboot
 # Install Frida
 pip3 install frida-tools
 # Download frida-server from https://github.com/frida/frida/releases
+# **The version of frida-tools and frida-server must match**
 wget https://github.com/frida/frida/releases/download/16.0.15/frida-server-16.0.15-android-arm64.xz -O frida-server.xz
 unxz frida-server.xz
 adb root
