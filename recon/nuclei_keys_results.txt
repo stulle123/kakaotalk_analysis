@@ -1,0 +1,5 @@
+[google-api-key] [file] [low] kakao_decode_apktool/res/values/strings.xml [AIzaSyD_-GTX7erjDNQ1UhkdesbAu98lej9MfWs,AIzaSyC29Nja5CB6MoSQEWtzarrr5GIKvG8FtT4]
+[google-api-key] [file] [low] kakao_decode_apktool/smali_classes3/dx0/a.smali [AIzaSyC29Nja5CB6MoSQEWtzarrr5GIKvG8FtT4]
+[google-api-key] [file] [low] kakao_decode_apktool/smali_classes3/n21/r.smali [AIzaSyC29Nja5CB6MoSQEWtzarrr5GIKvG8FtT4]
+[google-api-key] [file] [low] kakao_decode_apktool/smali_classes4/com/kakaopay/data/inference/idcard/scanner/FirebaseConfig.smali [AIzaSyBwO0qQsajmLNJW8A6hzaIg_s_dw0MOFpE,AIzaSyD5EYeB2rQSIQopzAHieNRcqrHbXFWJ4DM]
+[firebase-database] [file] [info] kakao_decode_apktool/res/values/strings.xml [api-project-552367303137.firebaseio.com]
