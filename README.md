@@ -130,15 +130,20 @@ fMcz2Jtr
 ### Tools to play with
 
 - https://github.com/skylot/jadx
+  - It has a scripting engine, too.
 - https://github.com/quark-engine/quark-engine
 - Frida scripts
   - https://github.com/WithSecureLabs/android-keystore-audit
   - https://codeshare.frida.re/@fadeevab/intercept-android-apk-crypto-operations/
   - https://codeshare.frida.re/@dzonerzy/aesinfo/
 - https://github.com/sensepost/objection
+  - Run: `$ objection -g com.kakao.talk explore`
 - https://github.com/MobSF/Mobile-Security-Framework-MobSF
 - https://github.com/JakeWharton/pidcat
   - Hint: if only color codes are printed, try this [fix](https://github.com/JakeWharton/pidcat/issues/182)
+- Nuclei
+  - Download Android templates: `git clone https://github.com/optiv/mobile-nuclei-templates`
+  - Run: `$ echo kakaotalk_apktool_decoded_folder | nuclei -t ~/mobile-nuclei-templates/Android -o nuclei_android_results.txt`
 
 ## Misc Commands
 
