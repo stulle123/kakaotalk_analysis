@@ -38,7 +38,7 @@ Install required tools:
 
 - Get latest [jadx](https://github.com/skylot/jadx) (or install via `brew`)
 - Get [Burp Suite](https://portswigger.net/burp/communitydownload)
-- `$ brew install apktool nuclei radare2 sqlite`
+- `$ brew install apktool nuclei radare2 sqlite db-browser-for-sqlite`
 - `$ pip3 install --upgrade frida-tools objection`
 
 ### SSH
