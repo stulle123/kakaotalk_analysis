@@ -66,13 +66,13 @@ openssl x509 -inform DER -in burp_ca_cert.der -out burp_ca_cert.pem
 # Get subject_hash_old
 openssl x509 -inform PEM -subject_hash_old -in burp_ca_cert.pem | head -1
 # Rename burp_ca_cert.pem to <hash>.0
-mv burp_ca_cert.pem 9a5ba57.05
+mv burp_ca_cert.pem 9a5ba57.0
 # Start emulator and copy certificate
 emulator @kakao -writable-system -http-proxy 127.0.0.1:8080
 adb root
 adb remount
-adb push 9a5ba57.05 /system/etc/security/cacerts/
-adb shell "chmod 644 /system/etc/security/cacerts/9a5ba57.05"
+adb push 9a5ba57.0 /system/etc/security/cacerts/
+adb shell "chmod 644 /system/etc/security/cacerts/9a5ba57.0"
 adb reboot
 ```
 **Note**, that you have to start the emulator with `-writable-system`. Otherwise, Burp's certificate doesn't show up in Androids's trusted CA store (`Settings` -> `Security` -> `Encryption and credentials` -> `Trusted credentials`) 🙈
