@@ -1,0 +1,78 @@
+Files fresh_install/com.kakao.talk/app_webview/Cookies and after_login/com.kakao.talk/app_webview/Cookies differ
+Files fresh_install/com.kakao.talk/databases/KakaoTalk.db-shm and after_login/com.kakao.talk/databases/KakaoTalk.db-shm differ
+Files fresh_install/com.kakao.talk/databases/KakaoTalk.db-wal and after_login/com.kakao.talk/databases/KakaoTalk.db-wal differ
+Files fresh_install/com.kakao.talk/databases/com.google.android.datatransport.events and after_login/com.kakao.talk/databases/com.google.android.datatransport.events differ
+Files fresh_install/com.kakao.talk/databases/com.google.android.datatransport.events-shm and after_login/com.kakao.talk/databases/com.google.android.datatransport.events-shm differ
+Files fresh_install/com.kakao.talk/databases/com.google.android.datatransport.events-wal and after_login/com.kakao.talk/databases/com.google.android.datatransport.events-wal differ
+Files fresh_install/com.kakao.talk/databases/google_app_measurement_local.db and after_login/com.kakao.talk/databases/google_app_measurement_local.db differ
+Files fresh_install/com.kakao.talk/files/datastore/Feature_DataStore.pref.preferences_pb and after_login/com.kakao.talk/files/datastore/Feature_DataStore.pref.preferences_pb differ
+Files fresh_install/com.kakao.talk/files/datastore/LocalUser_DataStore.pref.preferences_pb and after_login/com.kakao.talk/files/datastore/LocalUser_DataStore.pref.preferences_pb differ
+Files fresh_install/com.kakao.talk/no_backup/androidx.work.workdb-shm and after_login/com.kakao.talk/no_backup/androidx.work.workdb-shm differ
+Files fresh_install/com.kakao.talk/no_backup/kakaoi.json and after_login/com.kakao.talk/no_backup/kakaoi.json differ
+Files fresh_install/com.kakao.talk/shared_prefs/KakaoTalk.hw.perferences.xml and after_login/com.kakao.talk/shared_prefs/KakaoTalk.hw.perferences.xml differ
+Files fresh_install/com.kakao.talk/shared_prefs/com.google.android.gms.measurement.prefs.xml and after_login/com.kakao.talk/shared_prefs/com.google.android.gms.measurement.prefs.xml differ
+Files fresh_install/com.kakao.talk/shared_prefs/com.google.firebase.crashlytics.xml and after_login/com.kakao.talk/shared_prefs/com.google.firebase.crashlytics.xml differ
+Files fresh_install/com.kakao.talk/shared_prefs/com.kakao.adfit.preference.xml and after_login/com.kakao.talk/shared_prefs/com.kakao.adfit.preference.xml differ
+Only in after_login/com.kakao.talk/app_tmp: temp
+Only in after_login/com.kakao.talk/app_webview: GPUCache
+Only in after_login/com.kakao.talk/app_webview: Web Data
+Only in after_login/com.kakao.talk/app_webview: Web Data-journal
+Only in after_login/com.kakao.talk/app_webview: blob_storage
+Only in after_login/com.kakao.talk/app_webview: metrics_guid
+Only in after_login/com.kakao.talk/app_webview: webrtc_event_logs
+Only in after_login/com.kakao.talk/app_webview: webview_data.lock
+Only in after_login/com.kakao.talk/cache/media: 74fe9b5d7e76984.uid
+Only in after_login/com.kakao.talk/cache/sentry/.sentry-native: 78ec27ec-5ca3-4fd4-f0a0-ab085fb28fed.run
+Only in after_login/com.kakao.talk/cache/sentry/.sentry-native: 78ec27ec-5ca3-4fd4-f0a0-ab085fb28fed.run.lock
+Only in after_login/com.kakao.talk/cache: WebView
+Only in after_login/com.kakao.talk/cache: keywordEffects
+Only in after_login/com.kakao.talk/cache: org.chromium.android_webview
+Only in after_login/com.kakao.talk/databases: KakaoTalk2.db
+Only in after_login/com.kakao.talk/databases: KakaoTalk2.db-shm
+Only in after_login/com.kakao.talk/databases: KakaoTalk2.db-wal
+Only in after_login/com.kakao.talk/databases: calendar_database
+Only in after_login/com.kakao.talk/databases: calendar_database-shm
+Only in after_login/com.kakao.talk/databases: calendar_database-wal
+Only in after_login/com.kakao.talk/databases: crypto_database
+Only in after_login/com.kakao.talk/databases: crypto_database-shm
+Only in after_login/com.kakao.talk/databases: crypto_database-wal
+Only in after_login/com.kakao.talk/databases: kakao_talk_pass.db
+Only in after_login/com.kakao.talk/databases: kakao_talk_pass.db-shm
+Only in after_login/com.kakao.talk/databases: kakao_talk_pass.db-wal
+Only in after_login/com.kakao.talk/databases: multi_profile_database.db
+Only in after_login/com.kakao.talk/databases: multi_profile_database.db-shm
+Only in after_login/com.kakao.talk/databases: multi_profile_database.db-wal
+Only in after_login/com.kakao.talk/files/.com.google.firebase.crashlytics.files.v2:com.kakao.talk/open-sessions: 64490EE7035C00011AF4E2FD9A861133
+Only in after_login/com.kakao.talk/files/.com.google.firebase.crashlytics.files.v2:com.kakao.talk: com.crashlytics.settings.json
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.Qr.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.bg.perferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.calendar.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.drawer.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.fcm.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.jordy.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.locoLog.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.more.perferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.multiprofile.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.music.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.notification.channel_revision.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.plusfriend.preference.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.profile.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.search.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.shop.perferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.vox.perferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: KakaoTalk.warehouse.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: kakao.talk.item.store.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: kakao.talk.openlink.preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: kakaotalk.cache.xml
+Only in after_login/com.kakao.talk/shared_prefs: talk_pass_preferences.xml
+Only in after_login/com.kakao.talk/shared_prefs: voiceMode.xml
+Only in after_login/com.kakao.talk/shared_prefs: zzng.xml
+Only in after_login/com.kakao.talk: aot
+Only in after_login/external_cache/com.kakao.talk/cache: MiniProfile
+Only in after_login/external_cache/com.kakao.talk/cache: default
+Only in after_login/external_cache/com.kakao.talk/cache: journal
+Only in fresh_install/com.kakao.talk/cache/media: 6662dfbb8374cc4c.uid
+Only in fresh_install/com.kakao.talk/cache/sentry/.sentry-native: df528a75-67a9-4902-fa1f-732ea520a90e.run
+Only in fresh_install/com.kakao.talk/cache/sentry/.sentry-native: df528a75-67a9-4902-fa1f-732ea520a90e.run.lock
+Only in fresh_install/com.kakao.talk/cache/sentry: session.json
+Only in fresh_install/com.kakao.talk/files/.com.google.firebase.crashlytics.files.v2:com.kakao.talk/open-sessions: 6449003E002E0001107DE2FD9A861133
