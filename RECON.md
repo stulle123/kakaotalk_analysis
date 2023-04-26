@@ -41,3 +41,144 @@ Alias                     Key   Certificate
 talkpass_keystore         True  False
 crypto_db_passphrase_key  True  False
 ```
+
+The key in the `talkpass_keystore` KeyStore is used to encrypt another symmetric key and IV in the file `com.kakao.talk/shared_prefs/zzng.xml`.
+
+The key in the `crypto_db_passphrase_key` KeyStore is used encrypt the database `com.kakao.talk/databases/crypto_database`.
+
+There's also a BKS KeyStore `res/raw/kakao_c` in `kakaotalk_10.1.7.apk`. The password is `am_i_safe_now_kakaoteam`.
+
+You can read the KeyStore with the `keytool` tool:
+
+```bash
+$ PROVIDER_PATH=usr/local/share/android-commandlinetools/cmdline-tools/latest/lib/external/org/bouncycastle/bcprov-jdk15on/1.67/bcprov-jdk15on-1.67.jar
+$ keytool -list -v -keystore ./res/raw/kakao_c -storetype BKS -provider org.bouncycastle.jce.provider.BouncyCastleProvider -providerpath $PROVIDER_PATH -storepass am_i_safe_now_kakaoteam
+```
+
+Here are the contents of the `kakao_c` KeyStore:
+
+```
+Keystore type: BKS
+Keystore provider: BC
+
+Your keystore contains 6 entries
+
+Alias name: AAA Certificate Services
+Creation date: 23 Sept 2021
+Entry type: trustedCertEntry
+
+Owner: CN=AAA Certificate Services, O=Comodo CA Limited, L=Salford, ST=Greater Manchester, C=GB
+Issuer: CN=AAA Certificate Services, O=Comodo CA Limited, L=Salford, ST=Greater Manchester, C=GB
+Serial number: 1
+Valid from: Thu Jan 01 01:00:00 CET 2004 until: Mon Jan 01 00:59:59 CET 2029
+Certificate fingerprints:
+	 SHA1: D1:EB:23:A4:6D:17:D6:8F:D9:25:64:C2:F1:F1:60:17:64:D8:E3:49
+	 SHA256: D7:A7:A0:FB:5D:7E:27:31:D7:71:E9:48:4E:BC:DE:F7:1D:5F:0C:3E:0A:29:48:78:2B:C8:3E:E0:EA:69:9E:F4
+Signature algorithm name: SHA1WITHRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 3
+
+
+*******************************************
+*******************************************
+
+
+Alias name: DigiCert Global Root CA
+Creation date: 23 Sept 2021
+Entry type: trustedCertEntry
+
+Owner: CN=DigiCert Global Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+Issuer: CN=DigiCert Global Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+Serial number: 83be056904246b1a1756ac95991c74a
+Valid from: Fri Nov 10 01:00:00 CET 2006 until: Mon Nov 10 01:00:00 CET 2031
+Certificate fingerprints:
+	 SHA1: A8:98:5D:3A:65:E5:E5:C4:B2:D7:D6:6D:40:C6:DD:2F:B1:9C:54:36
+	 SHA256: 43:48:A0:E9:44:4C:78:CB:26:5E:05:8D:5E:89:44:B4:D8:4F:96:62:BD:26:DB:25:7F:89:34:A4:43:C7:01:61
+Signature algorithm name: SHA1WITHRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 3
+
+
+*******************************************
+*******************************************
+
+
+Alias name: Digicert Global Root G2
+Creation date: 2 Jan 2018
+Entry type: trustedCertEntry
+
+Owner: CN=DigiCert Global Root G2, OU=www.digicert.com, O=DigiCert Inc, C=US
+Issuer: CN=DigiCert Global Root G2, OU=www.digicert.com, O=DigiCert Inc, C=US
+Serial number: 33af1e6a711a9a0bb2864b11d09fae5
+Valid from: Thu Aug 01 14:00:00 CEST 2013 until: Fri Jan 15 13:00:00 CET 2038
+Certificate fingerprints:
+	 SHA1: DF:3C:24:F9:BF:D6:66:76:1B:26:80:73:FE:06:D1:CC:8D:4F:82:A4
+	 SHA256: CB:3C:CB:B7:60:31:E5:E0:13:8F:8D:D3:9A:23:F9:DE:47:FF:C3:5E:43:C1:14:4C:EA:27:D4:6A:5A:B1:CB:5F
+Signature algorithm name: SHA256WITHRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 3
+
+
+*******************************************
+*******************************************
+
+
+Alias name: USERTrust RSA Certification Authority
+Creation date: 23 Sept 2021
+Entry type: trustedCertEntry
+
+Owner: CN=USERTrust RSA Certification Authority, O=The USERTRUST Network, L=Jersey City, ST=New Jersey, C=US
+Issuer: CN=USERTrust RSA Certification Authority, O=The USERTRUST Network, L=Jersey City, ST=New Jersey, C=US
+Serial number: 1fd6d30fca3ca51a81bbc640e35032d
+Valid from: Mon Feb 01 01:00:00 CET 2010 until: Tue Jan 19 00:59:59 CET 2038
+Certificate fingerprints:
+	 SHA1: 2B:8F:1B:57:33:0D:BB:A2:D0:7A:6C:51:F7:0E:E9:0D:DA:B9:AD:8E
+	 SHA256: E7:93:C9:B0:2F:D8:AA:13:E2:1C:31:22:8A:CC:B0:81:19:64:3B:74:9C:89:89:64:B1:74:6D:46:C3:D4:CB:D2
+Signature algorithm name: SHA384WITHRSA
+Subject Public Key Algorithm: 4096-bit RSA key
+Version: 3
+
+
+*******************************************
+*******************************************
+
+
+Alias name: VeriSign Class 3 Public Primary Certification Authority - G5
+Creation date: 4 May 2017
+Entry type: trustedCertEntry
+
+Owner: CN=VeriSign Class 3 Public Primary Certification Authority - G5, OU="(c) 2006 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+Issuer: CN=VeriSign Class 3 Public Primary Certification Authority - G5, OU="(c) 2006 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+Serial number: 18dad19e267de8bb4a2158cdcc6b3b4a
+Valid from: Wed Nov 08 01:00:00 CET 2006 until: Thu Jul 17 01:59:59 CEST 2036
+Certificate fingerprints:
+	 SHA1: 4E:B6:D5:78:49:9B:1C:CF:5F:58:1E:AD:56:BE:3D:9B:67:44:A5:E5
+	 SHA256: 9A:CF:AB:7E:43:C8:D8:80:D0:6B:26:2A:94:DE:EE:E4:B4:65:99:89:C3:D0:CA:F1:9B:AF:64:05:E4:1A:B7:DF
+Signature algorithm name: SHA1WITHRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 3
+
+
+*******************************************
+*******************************************
+
+
+Alias name: mykey
+Creation date: 30 Jun 2020
+Entry type: trustedCertEntry
+
+Owner: CN=Amazon, OU=Server CA 1B, O=Amazon, C=US
+Issuer: CN=Amazon Root CA 1, O=Amazon, C=US
+Serial number: 67f94578587e8ac77deb253325bbc998b560d
+Valid from: Thu Oct 22 02:00:00 CEST 2015 until: Sun Oct 19 02:00:00 CEST 2025
+Certificate fingerprints:
+	 SHA1: 91:7E:73:2D:33:0F:9A:12:40:4F:73:D8:BE:A3:69:48:B9:29:DF:FC
+	 SHA256: F5:5F:9F:FC:B8:3C:73:45:32:61:60:1C:7E:04:4D:B1:5A:0F:03:4B:93:C0:58:30:F2:86:35:EF:88:9C:F6:70
+Signature algorithm name: SHA256WITHRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 3
+
+
+*******************************************
+*******************************************
+```
