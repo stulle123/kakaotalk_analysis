@@ -6,9 +6,9 @@ Prepare your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
 JAVA=/usr/local/opt/openjdk/bin
+export PATH=$JAVA:$PATH
 export ANDROID_HOME=/usr/local/share/android-commandlinetools
 export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$JAVA
 ```
 
 Install Android Emulator on a MAC M1:
@@ -33,6 +33,13 @@ emulator @kakao
 sed -i -r 's/hw.keyboard = no/hw.keyboard = yes/' ~/.android/avd/kakao.avd/config.ini
 sed -i -r 's/hw.mainKeys = yes/hw.mainKeys = no/' ~/.android/avd/kakao.avd/config.ini
 ```
+
+Install required tools:
+
+- Get latest [jadx](https://github.com/skylot/jadx) (or install via `brew`)
+- Get [Burp Suite](https://portswigger.net/burp/communitydownload)
+- `$ brew install apktool nuclei radare2 sqlite`
+- `$ pip3 install --upgrade frida-tools objection`
 
 ### SSH
 
