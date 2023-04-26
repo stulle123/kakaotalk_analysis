@@ -110,6 +110,7 @@ frida --codeshare pcipolloni/universal-android-ssl-pinning-bypass-with-frida -U 
 
 - Grab a trash email account (e.g., from https://ulm-dsl.de/)
 - Grab a trash phone number to receive SMS messages (e.g., https://onlinesim.io)
+  - One phone number per account only
 - Open a new Incognito window, go to https://accounts.kakao.com and create an account:
 ```
 hans-erich.kober@ulm-dsl.de
@@ -122,7 +123,7 @@ fMcz2Jtr
 ```
 - In the KakaoTalk app, login with your email address:
   - When prompted add your phone number
-  - **Optional**: you may have to send a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) from your actual phone to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check verification` button in the app and the registration process should be completed.
+  - **Optional**: you may have to send a SMS including a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check verification` button in the app and the registration process should be completed.
 
 <img width="318" alt="image" src="https://user-images.githubusercontent.com/14765446/233626988-8bf6be98-c855-4f29-99cb-77d2d44dcb60.png">
 
