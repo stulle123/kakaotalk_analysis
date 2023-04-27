@@ -138,6 +138,7 @@ fMcz2Jtr
   - https://codeshare.frida.re/@dzonerzy/aesinfo/
 - https://github.com/sensepost/objection
   - Run: `$ objection -g com.kakao.talk explore`
+  - `com.kakao.talk on (Android: 9) [usb] # android hooking watch class com.kakao.talk.secret.LocoCipherHelper` (for me this only worked for SDK 28)
 - https://github.com/MobSF/Mobile-Security-Framework-MobSF
 - https://github.com/JakeWharton/pidcat
   - Hint: if only color codes are printed, try this [fix](https://github.com/JakeWharton/pidcat/issues/182)
