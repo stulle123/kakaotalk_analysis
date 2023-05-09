@@ -1,5 +1,14 @@
 # Kakaotalk Analysis
 
+- [Setup](#setup)
+  - [SSH](#ssh)
+  - [Setup Burp Suite](#configure-emulator-to-work-with-burp-suite)
+  - [Setup Frida](#setup-frida-to-disable-certificate-pinning)
+  - [Kakaotalk Login](#kakaotalk-account-setup)
+  - [Tools to try](#tools-to-play-with)
+- [Misc Commands](#misc-commands)
+- [Resources](#resources)
+
 ## Setup
 
 Prepare your `~/.bashrc` or `~/.zshrc`:
@@ -122,7 +131,7 @@ peterplan
 fMcz2Jtr
 ```
 - In the KakaoTalk app, login with your email address:
-  - When prompted add your phone number
+  - When prompted add your phone number. You'll receive a SMS with a pin number.
   - **Optional**: you may have to send a SMS including a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check verification` button in the app and the registration process should be completed.
 
 <img width="318" alt="image" src="https://user-images.githubusercontent.com/14765446/233626988-8bf6be98-c855-4f29-99cb-77d2d44dcb60.png">
@@ -164,16 +173,9 @@ adb shell dumpsys package | grep -Eo $(printf "^[[:space:]]+[0-9a-f]+[[:space:]]
 adb shell am start -a android.settings.SETTINGS
 ```
 
-## Possible E2E Attack Vectors
-
-- Register an attacker's device to the victim's KakaoTalk account
-- MITM the protocol on the wire
-- Operator-side MITM (e.g., by changing public keys)
-- Tamper with the ciphertext on the wire -> code injection
-- Send a chat message to a victim to retrieve the E2E encryption key -> code injection
-- Install a malcious app on the victim's device to retrieve the E2E key via IPC
-
 ## Resources
+
+Third-party Kakaotalk clients:
 
 - https://github.com/KiwiTalk/KiwiTalk
 - https://github.com/jhleekr/kakao.py
