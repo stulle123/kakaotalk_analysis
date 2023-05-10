@@ -49,6 +49,7 @@ Install required tools:
 - Get [Burp Suite](https://portswigger.net/burp/communitydownload)
 - `$ brew install apktool nuclei radare2 sqlite db-browser-for-sqlite`
 - `$ pip3 install --upgrade frida-tools objection`
+- Install [Kakaotalk for Windows](https://app-pc.kakaocdn.net/talk/win32/KakaoTalk_Setup.exe) via [wine and brew](https://wiki.winehq.org/MacOS)
 
 ### SSH
 
