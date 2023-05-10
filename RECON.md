@@ -1,5 +1,13 @@
 # Recon
 
+- [Related Work](#related-work)
+- [Possible Vectors](#possible-attack-vectors)
+  - [Registration and Login](#registration-and-login)
+  - [Cloud](#cloud)
+  - [LOCO Protocol Attackss](#loco-protocol-attacks)
+  - [Message Parsing](#message-parsing-zero-click)
+  - [Malicious App](#malicious-third-party-app)
+  - [Operator-side Attacks](#operator-side-attacks)
 - [General Infos](#general-infos)
 - [Files](#files)
 - [Rest APIs](#rest-apis)
@@ -9,21 +17,80 @@
 - [Open-Source Libs](#open-source-libs)
 - [Crypto](#crypto)
   - [E2E](#e2e)
-- [Possible Vectors](#possible-attack-vectors)
-  - [Registration and Login](#registration-and-login)
-  - [Cloud](#cloud)
-  - [LOCO Protocol Attackss](#loco-protocol-attacks)
-  - [Message Parsing](#message-parsing-zero-click)
-  - [Malicious App](#malicious-third-party-app)
-  - [Operator-side Attacks](#operator-side-attacks)
 
 ## Related Work
+
+How things work:
 
 - [Kakaotalk Messaging Architecture](https://kth.diva-portal.org/smash/get/diva2:1046438/FULLTEXT01.pdf#page=75)
 - [User Registration and Login](https://kth.diva-portal.org/smash/get/diva2:1046438/FULLTEXT01.pdf#page=79)
 - [LOCO protocol](https://kth.diva-portal.org/smash/get/diva2:1046438/FULLTEXT01.pdf#page=77)
+
+Flaws:
+
 - [Protocol flaws](https://kth.diva-portal.org/smash/get/diva2:1046438/FULLTEXT01.pdf#page=100)
 - [App security flaws](https://kth.diva-portal.org/smash/get/diva2:1046438/FULLTEXT01.pdf#page=105)
+
+## Possible Attack Vectors
+
+### Registration and Login
+
+- Register an attacker's device to the victim's KakaoTalk account
+    - Get victims account credentials email/pw (e.g., via a data dump on breached.vc)
+    - Brute-force 4-digit pin
+- Intercept SMS during registration to get the pincode (e.g., via SS7 access)
+- Register an attacker's device via flaws in the LOCO protocol (`CHECKIN` and `LOGINLIST` commands?)
+- Check out insecure REST API endpoints for authorization flaws
+- Code injection into insecure REST API endpoints
+- QR Code login (`xm.a` and `vm.q` Java classes)
+	- `/talk/account/qrCodeLogin/info.json?id=eyJwcm90b2NvbCI6InYxIiwiY2hhbGxlbmdlIjoiNlB6MFMzdkRQMmlFUTZoRXh5YW5mWGtOelNHU0RRIn0=`
+	- `{"protocol":"v1","challenge":"6Pz0S3vDP2iEQ6hExyanfXkNzSGSDQ"}`
+		- `m.w.R1` method computes a MAC of the challenge
+		- The OAuth Refresh Token seems to be the MAC key
+			- How to obtain them? How are they generated? How long do they live?
+			- `ym.a` class builds the POST request
+	- API endpoints in interface `e31.j`
+
+### Cloud
+
+- Cloud back-up (weak password)
+  - Secret Chat messages won’t be stored
+- Tamper with plaintext asset downloads via HTTP (parser attacks on the client possible?)
+
+### LOCO Protocol Attacks
+
+- Spoof victim (`CHECKIN` packet)
+  - Spoof victim’s device ID (**TODO**: How is it generated?)
+- Spoof KakaoTalk server
+  - Send the attacker’s public key to the victim (maybe there’s a LOCO command for updating RSA public keys on the client?)
+  - MITM traffic
+- Tamper messages (CFB malleability —> [Efail](https://jaads.de/Bachelorthesis/Bachelorthesis_Jan_Arends.pdf))
+  - [Owncloud CFB malleability bug](https://blog.hboeck.de/archives/880-Pwncloud-bad-crypto-in-the-Owncloud-encryption-module.html)
+  - Use the `LOGINLIST` command with `chatDatas`, `attachment` or `code` JSON fields to run code on the client app?
+- Replay messages
+- Drop messages
+- Sniff plaintext LOCO packets (`CHECKIN` packet)
+- Downgrade attacks (maybe there's a way to fallback to unencrypted comms?)
+
+### Message Parsing ("Zero Click")
+
+- **TODO**: Build Kakaotalk Python app
+- Send a chat message to a victim to retrieve the E2E encryption key -> code injection
+  - URL rendering
+  - Calendar invite rendering
+  - Emojis
+  - Button rendering
+  - Intents
+
+### Malicious third-party app
+
+- Install a malcious app on the victim's device to retrieve the E2E key via IPC
+  - Send malicious intents (code injection)
+  - Spoof the Kakaotalk app
+
+### Operator-side Attacks
+
+- Operator-side MITM (e.g., by changing public keys)
 
 ## General App Infos
 
@@ -336,64 +403,3 @@ Version: 3
 E2E is opt-in only. Most people probably don’t use Secret Chat since `In a secret chatrooom, features including free calling, polls, events and chatroom album are currently not available`.
 
 Main implementation in package `com.kakao.talk.secret` and the `LocoCipherHelper ` class.
-
-## Possible Attack Vectors
-
-### Registration and Login
-
-- Register an attacker's device to the victim's KakaoTalk account
-    - Get victims account credentials email/pw (e.g., via a data dump on breached.vc)
-    - Brute-force 4-digit pin
-- Intercept SMS during registration to get the pincode (e.g., via SS7 access)
-- Register an attacker's device via flaws in the LOCO protocol (`CHECKIN` and `LOGINLIST` commands?)
-- Check out insecure REST API endpoints for authorization flaws
-- Code injection into insecure REST API endpoints
-- QR Code login (`xm.a` and `vm.q` Java classes)
-	- `/talk/account/qrCodeLogin/info.json?id=eyJwcm90b2NvbCI6InYxIiwiY2hhbGxlbmdlIjoiNlB6MFMzdkRQMmlFUTZoRXh5YW5mWGtOelNHU0RRIn0=`
-	- `{"protocol":"v1","challenge":"6Pz0S3vDP2iEQ6hExyanfXkNzSGSDQ"}`
-		- `m.w.R1` method computes a MAC of the challenge
-		- The OAuth Refresh Token seems to be the MAC key
-			- How to obtain them? How are they generated? How long do they live?
-			- `ym.a` class builds the POST request
-	- API endpoints in interface `e31.j`
-
-### Cloud
-
-- Cloud back-up (weak password)
-  - Secret Chat messages won’t be stored
-- Tamper with plaintext asset downloads via HTTP (parser attacks on the client possible?)
-
-### LOCO Protocol Attacks
-
-- Spoof victim (`CHECKIN` packet)
-  - Spoof victim’s device ID (**TODO**: How is it generated?)
-- Spoof KakaoTalk server
-  - Send the attacker’s public key to the victim (maybe there’s a LOCO command for updating RSA public keys on the client?)
-  - MITM traffic
-- Tamper messages (CFB malleability —> [Efail](https://jaads.de/Bachelorthesis/Bachelorthesis_Jan_Arends.pdf))
-  - [Owncloud CFB malleability bug](https://blog.hboeck.de/archives/880-Pwncloud-bad-crypto-in-the-Owncloud-encryption-module.html)
-  - Use the `LOGINLIST` command with `chatDatas`, `attachment` or `code` JSON fields to run code on the client app?
-- Replay messages
-- Drop messages
-- Sniff plaintext LOCO packets (`CHECKIN` packet)
-- Downgrade attacks (maybe there's a way to fallback to unencrypted comms?)
-
-### Message Parsing ("Zero Click")
-
-- **TODO**: Build Kakaotalk Python app
-- Send a chat message to a victim to retrieve the E2E encryption key -> code injection
-  - URL rendering
-  - Calendar invite rendering
-  - Emojis
-  - Button rendering
-  - Intents
-
-### Malicious third-party app
-
-- Install a malcious app on the victim's device to retrieve the E2E key via IPC
-  - Send malicious intents (code injection)
-  - Spoof the Kakaotalk app
-
-### Operator-side Attacks
-
-- Operator-side MITM (e.g., by changing public keys)
