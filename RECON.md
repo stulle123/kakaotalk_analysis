@@ -12,6 +12,7 @@
 - [Files](#files)
 - [Rest APIs](#rest-apis)
 - [WebViews](#webviews)
+- [Firebase](#firebase)
 - [Intents](#intents)
 - [Native Libs](#native-libs)
 - [Open-Source Libs](#open-source-libs)
@@ -41,7 +42,7 @@ Flaws:
 - Intercept SMS during registration to get the pincode (e.g., via SS7 access)
 - Register an attacker's device via flaws in the LOCO protocol (`CHECKIN` and `LOGINLIST` commands?)
 - Check out insecure REST API endpoints for authorization flaws
-- Code injection into insecure REST API endpoints
+  - Code injection into insecure REST API endpoints
 - QR Code login (`xm.a` and `vm.q` Java classes)
 	- `/talk/account/qrCodeLogin/info.json?id=eyJwcm90b2NvbCI6InYxIiwiY2hhbGxlbmdlIjoiNlB6MFMzdkRQMmlFUTZoRXh5YW5mWGtOelNHU0RRIn0=`
 	- `{"protocol":"v1","challenge":"6Pz0S3vDP2iEQ6hExyanfXkNzSGSDQ"}`
@@ -50,6 +51,7 @@ Flaws:
 			- How to obtain them? How are they generated? How long do they live?
 			- `ym.a` class builds the POST request
 	- API endpoints in interface `e31.j`
+- Test PW Reset Functionality
 
 ### Cloud
 
@@ -62,7 +64,8 @@ Flaws:
 - Spoof victim (`CHECKIN` packet)
   - Spoof victim’s device ID (**TODO**: How is it generated?)
 - Spoof KakaoTalk server
-  - Send the attacker’s public key to the victim (maybe there’s a LOCO command for updating RSA public keys on the client?)
+  - Spoof legitimate KakaoTalk LOCO notifications and messages
+  - Send the attacker's public key to the victim (maybe there’s a LOCO command for updating RSA public keys on the client?)
   - MITM traffic
 - Tamper messages (CFB malleability —> [Efail](https://jaads.de/Bachelorthesis/Bachelorthesis_Jan_Arends.pdf))
   - [Owncloud CFB malleability bug](https://blog.hboeck.de/archives/880-Pwncloud-bad-crypto-in-the-Owncloud-encryption-module.html)
@@ -72,7 +75,7 @@ Flaws:
 - Sniff plaintext LOCO packets (`CHECKIN` packet)
 - Downgrade attacks (maybe there's a way to fallback to unencrypted comms?)
 
-### Message Parsing ("Zero Click")
+### LOCO Message Parsing ("Zero Click")
 
 - **TODO**: Build Kakaotalk Python app
 - Send a chat message to a victim to retrieve the E2E encryption key -> code injection
@@ -81,6 +84,7 @@ Flaws:
   - Emojis
   - Button rendering
   - Intents
+- Exploit (JSON) deserialization bugs
 
 ### Malicious third-party app
 
@@ -209,6 +213,45 @@ There are [Google API Keys](./recon/nuclei_keys_results.txt) which allow access 
 Cookies are encrypted with the hard-coded passphrase `KaKAOtalkForever`.
 
 **TO-DO**: Check for interesting [WebViews](./recon/nuclei_android_results.txt).
+
+## Firebase
+
+Firebase Crashlytics files in `/data/data/com.kakao.talk/files/.com.google.firebase.crashlytics.files.v2:com.kakao.talk/` folder.
+
+Tokens and URLs:
+
+- AppID: `1:552367303137:android:b650fef8b606535f`
+- X-Goog-Api-Key: `AIzaSyD_-GTX7erjDNQ1UhkdesbAu98lej9MfWs`
+- X-Firebase-Client: `H4sIAAAAAAAAAKtWykhNLCpJSk0sKVayio7VUSpLLSrOzM9TslIyUqoFAFyivEQfAAAA`
+- X-Android-Cert: `ECC45B902AC1E83C8BE1758A257E67492DE37456`
+- https://api-project-552367303137.firebaseio.com
+- https://firebaseinstallations.googleapis.com/v1/projects/api-project-552367303137/installations (main Java class -> `FirebaseInstallationServiceClient`)
+
+Fetch the Firebase Installation config:
+
+```bash
+curl -i -s -k -X $'POST' \
+    -H $'Content-Type: application/json' -H $'Accept: application/json' -H $'Content-Encoding: gzip' -H $'Cache-Control: no-cache' -H $'X-Android-Package: com.kakao.talk' -H $'x-firebase-client: H4sIAAAAAAAAAKtWykhNLCpJSk0sKVayio7VUSpLLSrOzM9TslIyUqoFAFyivEQfAAAA' -H $'X-Android-Cert: ECC45B902AC1E83C8BE1758A257E67492DE37456' -H $'x-goog-api-key: AIzaSyD_-GTX7erjDNQ1UhkdesbAu98lej9MfWs' -H $'User-Agent: Dalvik/2.1.0 (Linux; U; Android 11; sdk_gphone_arm64 Build/RSR1.210722.002)' -H $'Host: firebaseinstallations.googleapis.com' -H $'Connection: close' -H $'Accept-Encoding: gzip, deflate' -H $'Content-Length: 134' \
+    --data-binary $'\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x00\xabVJ\xcbLQ\xb2RJK\xf1\xb1\x08,\xaap\x0c\x0at/(O\x0fJ\xf1\xf3\xb0L\x09\x0fW\xd2QJ,(\xf0\x04)0\xb4255263760646\xb7J\xccK)\xca\xcfL\xb1J235HKM\xb3H230356M\x03\xe9(-\xc9\x08K-*\xce\xcc\xcf\x03\xeas\xf3\x0c\x8e/3\x02\x0a\x17\xa7d#D\x13\xad\x0c\xcd\xf5\x0c\xf5\x0c\x94j\x01[|19\x81\x00\x00\x00' \
+    $'https://firebaseinstallations.googleapis.com/v1/projects/api-project-552367303137/installations'
+```
+
+The returned token (`authToken` / `X-Goog-Firebase-Installations-Auth`) can be used to get another token from `https://android.apis.google.com/c2dm/register3`:
+
+```bash
+curl -i -s -k -X $'POST' \
+    -H $'Authorization: AidLogin 3678923725820734353:3828286260350902544' -H $'app: com.kakao.talk' -H $'gcm_ver: 201817019' -H $'User-Agent: Android-GCM/1.5 (emulator_arm64 RSR1.210722.002)' -H $'Content-Length: 810' -H $'content-type: application/x-www-form-urlencoded' -H $'Host: android.apis.google.com' -H $'Connection: Keep-Alive' -H $'Accept-Encoding: gzip, deflate' \
+    --data-binary $'X-subtype=552367303137&sender=552367303137&X-app_ver=2410170&X-osv=30&X-cliv=fcm-23.1.0&X-gmsv=201817019&X-appid=fdL8QrxARQGpwgRdNH9dWW&X-scope=*&X-Goog-Firebase-Installations-Auth=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjE6NTUyMzY3MzAzMTM3OmFuZHJvaWQ6YjY1MGZlZjhiNjA2NTM1ZiIsImV4cCI6MTY4Nzk1ODU0OCwiZmlkIjoiZmRMOFFyeEFSUUdwd2dSZE5IOWRXVyIsInByb2plY3ROdW1iZXIiOjU1MjM2NzMwMzEzN30.AB2LPV8wRQIgV1u9VS6q7U_mBrGgJ0qAfP6qhujF2ID-KwCKKttnrowCIQDnJsxvUfFbDyIbiVdWB1q4yVgRPCCM5Cu41LRI9cbF2A&X-gmp_app_id=1%3A552367303137%3Aandroid%3Ab650fef8b606535f&X-firebase-app-name-hash=R1dAH9Ui7M-ynoznwBdw01tLxhI&X-app_ver_name=10.1.7&app=com.kakao.talk&device=3678923725820734353&app_ver=2410170&info=wzQNGm6LkccWQKri541rkWUlRk-YeRg&gcm_ver=201817019&plat=0&cert=ecc45b902ac1e83c8be1758a257e67492de37456&target_ver=31' \
+    $'https://android.apis.google.com/c2dm/register3'
+```
+
+The Firebase Installation config is also stored locally in `/data/data/com.kakao.talk/files/PersistedInstallation.W0RFRkFVTFRd+MTo1NTIzNjczMDMxMzc6YW5kcm9pZDpiNjUwZmVmOGI2MDY1MzVm.json` file and exposed by `content://com.kakao.talk.FileProvider/onepass/PersistedInstallation.W0RFRkFVTFRd+MTo1NTIzNjczMDMxMzc6YW5kcm9pZDpiNjUwZmVmOGI2MDY1MzVm.json`.
+
+KakaoTalk doesn't seem to use Firebase Remote Config (or they are using a different endpoint, e.g. `https://firebaseremoteconfig.googleapis.com/v1/projects/552367303137/remoteConfig`):
+
+```bash
+$ curl "https://firebaseremoteconfig.googleapis.com/v1/projects/552367303137/namespaces/firebase:fetch?key=AIzaSyD_-GTX7erjDNQ1UhkdesbAu98lej9MfWs" -H 'content-type:application/json' -d '{"appId": "1:552367303137:android:b650fef8b606535f","appInstanceId": "required_but_unused_value"}'
+```
 
 ## Intents
 

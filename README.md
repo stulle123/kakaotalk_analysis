@@ -172,6 +172,10 @@ PACKAGE=com.termux
 adb shell dumpsys package | grep -Eo $(printf "^[[:space:]]+[0-9a-f]+[[:space:]]+%s/[^[:space:]]+" "${PACKAGE}") | grep -oE "[^[:space:]]+$"
 # Launch Settings
 adb shell am start -a android.settings.SETTINGS
+# Show current activity
+adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp|mInputMethodTarget|mSurface'
+# Show file system access
+adb shell 'am start kakaotalk://main && ps -A | grep -m 1 "kakao" | tr -s " " | cut -d " " -f2 | xargs strace -f -p 2>&1 | grep -i /data'
 ```
 
 ## Resources
