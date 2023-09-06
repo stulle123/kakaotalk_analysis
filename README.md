@@ -1,4 +1,4 @@
-# Kakaotalk Analysis
+# Kakaotalk 10.3.3 Analysis
 
 - [Setup](#setup)
   - [SSH](#ssh)
@@ -47,8 +47,8 @@ Install required tools:
 
 - Get latest [jadx](https://github.com/skylot/jadx) (or install via `brew`)
 - Get [Burp Suite](https://portswigger.net/burp/communitydownload)
-- `$ brew install apktool nuclei radare2 sqlite db-browser-for-sqlite`
-- `$ pip3 install --upgrade frida-tools objection`
+- `$ brew install apktool jadx nuclei sqlite db-browser-for-sqlite`
+- `$ pip3 install --upgrade frida-tools mitmproxy`
 - Install [Kakaotalk for Windows](https://app-pc.kakaocdn.net/talk/win32/KakaoTalk_Setup.exe) via [wine and brew](https://wiki.winehq.org/MacOS)
 
 ### SSH
@@ -123,24 +123,23 @@ frida --codeshare pcipolloni/universal-android-ssl-pinning-bypass-with-frida -U 
   - One phone number per account only
 - Open a new Incognito window, go to https://accounts.kakao.com and create an account:
 ```
-hans-erich.kober@ulm-dsl.de
-peterock
+furztrocken
+ahmad.sprenger@ulm-dsl.de
 kBB5mmmE
 
+peterock
 folkert.dachs@ulm-dsl.de
-peterplan
 fMcz2Jtr
 ```
 - In the KakaoTalk app, login with your email address:
   - When prompted add your phone number. You'll receive a SMS with a pin number.
-  - **Optional**: you may have to send a SMS including a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check verification` button in the app and the registration process should be completed.
+  - You may have to send a SMS including a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check verification` button in the app and the registration process should be completed.
 
 <img width="318" alt="image" src="https://user-images.githubusercontent.com/14765446/233626988-8bf6be98-c855-4f29-99cb-77d2d44dcb60.png">
 
 ### Tools to play with
 
-- https://github.com/skylot/jadx
-  - It has a scripting engine, too.
+- https://github.com/Ch0pin/medusa
 - https://github.com/quark-engine/quark-engine
 - Frida scripts
   - https://github.com/WithSecureLabs/android-keystore-audit
@@ -165,17 +164,29 @@ adb shell am start com.kakao.talk
 adb shell am force-stop com.kakao.talk
 # Start Termux
 adb shell am start com.termux/.HomeActivity
+# Launch Settings
+adb shell am start -a android.settings.SETTINGS
 # List 3rd-party Packages
 adb shell pm list packages -f -3
 # Get Activities of an app
 PACKAGE=com.termux
 adb shell dumpsys package | grep -Eo $(printf "^[[:space:]]+[0-9a-f]+[[:space:]]+%s/[^[:space:]]+" "${PACKAGE}") | grep -oE "[^[:space:]]+$"
-# Launch Settings
-adb shell am start -a android.settings.SETTINGS
 # Show current activity
 adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp|mInputMethodTarget|mSurface'
 # Show file system access
 adb shell 'am start kakaotalk://main && ps -A | grep -m 1 "kakao" | tr -s " " | cut -d " " -f2 | xargs strace -f -p 2>&1 | grep -i /data'
+```
+
+Sign an app:
+```bash
+# Decompile
+apktool d -rf my-app.apk
+# Generate signing key
+keytool -genkey -v -keystore my-release-key.keystore -alias alias_name -keyalg RSA -keysize 2048 -validity 10000
+# Build APK
+apktool b -f -d com.myapp
+# Sign APK
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore my-release-key.keystore com.myapp/dist/com.myapp.apk alias_name
 ```
 
 ## Resources

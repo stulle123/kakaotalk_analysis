@@ -4,13 +4,17 @@
 - [Possible Vectors](#possible-attack-vectors)
   - [Registration and Login](#registration-and-login)
   - [Cloud](#cloud)
-  - [LOCO Protocol Attackss](#loco-protocol-attacks)
+  - [LOCO Protocol Attacks](#loco-protocol-attacks)
   - [Message Parsing](#message-parsing-zero-click)
   - [Malicious App](#malicious-third-party-app)
   - [Operator-side Attacks](#operator-side-attacks)
 - [General Infos](#general-infos)
 - [Files](#files)
 - [Rest APIs](#rest-apis)
+- [Activities](#activities)
+- [Services](#services)
+- [Content Providers](#content-providers)
+- [Broadcast Receivers](#broadcast-receivers)
 - [WebViews](#webviews)
 - [Firebase](#firebase)
 - [Intents](#intents)
@@ -208,6 +212,22 @@ p360hh.AuthApi
 
 There are [Google API Keys](./recon/nuclei_keys_results.txt) which allow access to the Google Maps API. Unauthorized access might cost the company some money.
 
+## Activities
+
+Many many (exported) `BROWSABLE` Activities.
+
+## Services
+
+**TO-DO**
+
+## Content Providers
+
+**TO-DO**
+
+## Broadcast Receivers
+
+**TO-DO**
+
 ## WebViews
 
 Cookies are encrypted with the hard-coded passphrase `KaKAOtalkForever`.
@@ -252,12 +272,6 @@ KakaoTalk doesn't seem to use Firebase Remote Config (or they are using a differ
 ```bash
 $ curl "https://firebaseremoteconfig.googleapis.com/v1/projects/552367303137/namespaces/firebase:fetch?key=AIzaSyD_-GTX7erjDNQ1UhkdesbAu98lej9MfWs" -H 'content-type:application/json' -d '{"appId": "1:552367303137:android:b650fef8b606535f","appInstanceId": "required_but_unused_value"}'
 ```
-
-## Intents
-
-**TO-DO**: Check for interesting [Intents](./recon/nuclei_android_results.txt).
-
-There are many many (exported) Activities, Services, Content Providers and Broadcast Receivers.
 
 ## Native Libs
 
