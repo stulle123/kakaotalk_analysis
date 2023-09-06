@@ -1,0 +1,7 @@
+body_length: 99
+body_payload: {MCCMNC: '310260', appVer: 10.3.3, lang: en, ntype: 3, os: android,
+  userId: 405368740}
+body_type: 0
+id: 10002
+loco_command: CHECKIN
+status_code: 0

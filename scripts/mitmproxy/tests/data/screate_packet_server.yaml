@@ -1,0 +1,34 @@
+body_length: 1249
+body_payload:
+  c: 9388759392670092
+  nc: true
+  pi:
+  - {cs: '', ek: 
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAykBFu1jEsa4PW2keOTSAELXE/VCJqGqiYmc9J0NiYAGFZO5R1vcziBg957PJAGL6U3Ut8Y+iNpDyEk8310pswQVZL1r/AJEJL/WPUgyVT0xk40VC72xYGasi/Cao7Cq3ZJo+rk3tCQx7RCGA0GtyosoEvj0yCNI4/NH9TJhkaKXmFgWwp9d42m75TmGHFFbvEkPyFXtcwmNhJH3cgVHAMlMCaspedPHlK8FAdl0jt20VqaScN4VSx7E//9VX2tcMpM/9R80QX/42lD/62r2eC8tO+9jGuJWl0SKOidDXGF4061SleosWZMy2TyS5sk+/Bb777I9GSoJ0bge5wXyaGwIDAQAB,
+    pt: 3124392943946588704, sk: 0PahpeVCuIzcuIYql9HbFGc4J7Tl9CNTsRqj4ByvvCY=, u: 405368327}
+  r:
+    activeMemberIds: [405368740, 405368327]
+    chatId: 9388759392670092
+    lastLogId: 0
+    lastMessage: null
+    lastUpdatedAt: null
+    members:
+    - {accountId: 262855419, countryIso: DE, fullProfileImageUrl: '', linkedServices: '',
+      nickName: furztrocken, originalProfileImageUrl: '', profileImageUrl: '', statusMessage: '',
+      suspended: false, type: -999999, userId: 405368740}
+    - {accountId: 256190398, countryIso: DE, fullProfileImageUrl: '', linkedServices: '',
+      nickName: peterplan, originalProfileImageUrl: '', profileImageUrl: '', statusMessage: '',
+      suspended: false, type: -999999, userId: 405368327}
+    metaRevisions: null
+    newMessageCount: -1
+    o: 1693554522
+    pct: null
+    pushAlert: null
+    type: SDirectChat
+    watermarks: [3125740641498169344, 3125740641498169344]
+  sc: 3125740649914852441
+  status: 0
+body_type: 0
+id: 10015
+loco_command: SCREATE
+status_code: 0

@@ -1,0 +1,6 @@
+body_length: 20
+body_payload: {pr: 1, r: 1}
+body_type: 0
+id: 10006
+loco_command: BLSYNC
+status_code: 0

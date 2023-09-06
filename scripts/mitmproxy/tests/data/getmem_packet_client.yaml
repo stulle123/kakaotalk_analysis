@@ -1,0 +1,6 @@
+body_length: 21
+body_payload: {chatId: 4884554736017431}
+body_type: 0
+id: 10007
+loco_command: GETMEM
+status_code: 0

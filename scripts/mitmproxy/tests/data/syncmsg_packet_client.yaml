@@ -1,0 +1,6 @@
+body_length: 56
+body_payload: {chatId: 9388759392670092, cnt: 1, cur: 0, max: 3125740656103546881}
+body_type: 0
+id: 10019
+loco_command: SYNCMSG
+status_code: 0

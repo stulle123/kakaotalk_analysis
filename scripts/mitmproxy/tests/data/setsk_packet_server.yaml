@@ -1,0 +1,6 @@
+body_length: 17
+body_payload: {status: 0}
+body_type: 0
+id: 10017
+loco_command: SETSK
+status_code: 0

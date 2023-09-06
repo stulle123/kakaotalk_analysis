@@ -1,0 +1,19 @@
+body_length: 715
+body_payload:
+  members:
+  - {accountId: 262855419, fullProfileImageUrl: '', linkedServices: '', nickName: furztrocken,
+    originalProfileImageUrl: '', profileImageUrl: '', statusMessage: '', type: -999999,
+    userId: 405368740, ut: 0}
+  - {accountId: 0, fullProfileImageUrl: 
+      https://p.kakaocdn.net/th/talkp/wkvq5HO4yw/K2H6hBZUBidOkF4i5yu1p0/pu5dpg_640x640_s.jpg,
+    linkedServices: '', nickName: KakaoTalk, originalProfileImageUrl: 
+      https://p.kakaocdn.net/th/talkp/wkvq5HO4yw/K2H6hBZUBidOkF4i5yu1p0/pu5dpg_640x640_s.jpg,
+    profileImageUrl: 
+      https://p.kakaocdn.net/th/talkp/wkvq5HO4yw/K2H6hBZUBidOkF4i5yu1p0/pu5dpg_110x110_c.jpg,
+    statusMessage: KakaoTeam, type: -999999, userId: 69758567, ut: 1}
+  status: 0
+  token: 1693552382
+body_type: 0
+id: 10007
+loco_command: GETMEM
+status_code: 0

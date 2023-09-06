@@ -1,0 +1,15 @@
+body_length: 402
+body_payload:
+  chatLogs:
+  - {attachment: g8M=, authorId: 405368740, chatId: 9388759392670092, logId: 3125740656103546881,
+    message: rNu7YQ==, msgId: 1337486070, prevId: 0, sInfo: '{"s":"2/V7NhvGlBOJJdnqT9rWB3oTVmNVJeC8k3dKe72Vax2DMneXc43fUmM6xSJme4Kp4WyL1wcjIovZ4t1IbaNhCg==","st":3125740649914852441,"pt":3125722692958571562}',
+    sendAt: 1693554523, type: 268435457}
+  isOK: false
+  jsi: 3125740641498169344
+  lastTokenId: 3125740663907061601
+  minLogId: 3123783401472000000
+  status: 0
+body_type: 0
+id: 10019
+loco_command: SYNCMSG
+status_code: 0

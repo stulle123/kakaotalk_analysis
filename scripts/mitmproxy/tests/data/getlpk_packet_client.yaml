@@ -1,0 +1,8 @@
+body_length: 30
+body_payload:
+  mi: [405368327]
+  mu: false
+body_type: 0
+id: 10013
+loco_command: GETLPK
+status_code: 0

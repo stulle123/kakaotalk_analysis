@@ -1,0 +1,49 @@
+body_length: 1499
+body_payload:
+  chatDatas:
+  - a: 2
+    c: 4884554736017431
+    i: [69758567]
+    k: [KakaoTalk]
+    l: {attachment: "{\"P\":{\"TP\":\"Feed\",\"ME\":\"KakaoTalk Login Attempt\",\"\
+        SID\":\"plusfriend_tms\",\"DID\":\"https://auth.kakao.com/fa/main.html?close_on_back=true&close_on_completion=true&page=block_try_talk_login&token=%2FdGRqWvV%2F5kbRw%2B%2FD1MEE8DtZEr7AEABKCrv3piI8us%3D\"\
+        ,\"SDID\":\"69758567\",\"FW\":false,\"KV\":true,\"AD\":false,\"A\":{\"version\"\
+        :1,\"code\":\"34O1972BXONLsjAcpwrH1ivompzIKPpkfJP8Chtqu7k=\",\"createdAt\"\
+        :1693552120617}},\"C\":{\"TI\":{\"FT\":true,\"TD\":{\"T\":\"KakaoTalk Login
+        Attempt\",\"D\":\"KakaoTalk Login Attempt\\n\\n-Date : Fri Sep 1 16:08 (Korea
+        Standard Time/UTC+9)\\n-Device : SDK_GPHONE_ARM64\\n-IP : 83.171.160.13\\
+        n\\nIf you don't recognize this activity, you may temporarily lock your account
+        to protect it.\\n\\n\"}},\"BUL\":[{\"BU\":{\"T\":\"Lock My Account\",\"HL\"\
+        :null},\"L\":{\"LMO\":\"https://auth.kakao.com/fa/main.html?close_on_back=true&close_on_completion=true&page=block_try_talk_login&token=%2FdGRqWvV%2F5kbRw%2B%2FD1MEE8DtZEr7AEABKCrv3piI8us%3D\"\
+        }}],\"BUT\":1}}", authorId: 69758567, chatId: 4884554736017431, logId: 3125720503930142720,
+      message: KakaoTalk Login Attempt, msgId: 1693552192251, prevId: 3124400535045228544,
+      referer: 0, sendAt: 1693552121, type: 71}
+    ll: 3125720503930142720
+    m: null
+    ml: 3123783401472000000
+    mmr: 0
+    n: 2
+    o: 0
+    p: true
+    s: 3122239915491457024
+    t: PlusChat
+  delChatIds: [4503599627370497]
+  eof: true
+  kc: []
+  lastTokenId: 3125740458250115451
+  lbk: 1693552381
+  ltk: 0
+  mcmRevision: 0
+  minLogId: 3123783401472000000
+  pkToken: 3125722692958571562
+  revision: 28
+  revisionInfo: '[]'
+  rp: !!binary |
+    AQABAAEA
+  sb: 1
+  status: 0
+  userId: 405368740
+body_type: 0
+id: 10011
+loco_command: LOGINLIST
+status_code: 0

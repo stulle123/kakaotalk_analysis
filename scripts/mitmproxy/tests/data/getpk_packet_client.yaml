@@ -1,0 +1,8 @@
+body_length: 45
+body_payload:
+  mi: [405368327]
+  pt: [3124319739752240031]
+body_type: 0
+id: 10014
+loco_command: GETPK
+status_code: 0

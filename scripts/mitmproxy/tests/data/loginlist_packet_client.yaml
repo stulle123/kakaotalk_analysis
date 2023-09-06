@@ -1,0 +1,22 @@
+body_length: 346
+body_payload:
+  MCCMNC: '310260'
+  appVer: 10.3.3
+  bg: false
+  chatIds: []
+  duuid: 295c990ec4b3470b9df03827b4a9e38b5caf17cfc010bb18abab9aee622ec5f8
+  lang: en
+  lastTokenId: 0
+  lbk: 0
+  maxIds: []
+  ntype: 3
+  oauthToken: 55027f93d571437fb5c602a526a77ee300000016935523756660010yGWgXyzccO
+  os: android
+  prtVer: '1'
+  revision: 0
+  rp: !!binary |
+    AAD//wAA
+body_type: 0
+id: 10003
+loco_command: LOGINLIST
+status_code: 0

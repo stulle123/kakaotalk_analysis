@@ -1,0 +1,7 @@
+body_length: 70
+body_payload:
+  ts: [2, 3, 11, 12, 4, 9, 10, 15]
+body_type: 0
+id: 10005
+loco_command: GETTOKEN
+status_code: 0

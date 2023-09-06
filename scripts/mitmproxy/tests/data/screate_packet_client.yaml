@@ -1,0 +1,7 @@
+body_length: 25
+body_payload:
+  mi: [405368327]
+body_type: 0
+id: 10015
+loco_command: SCREATE
+status_code: 0

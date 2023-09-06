@@ -1,0 +1,9 @@
+body_length: 179
+body_payload:
+  os: [0, 0, 0, 1, 0, 0, 0, 0]
+  status: 0
+  ts: [2, 3, 11, 12, 4, 9, 10, 15]
+body_type: 0
+id: 10005
+loco_command: GETTOKEN
+status_code: 0
