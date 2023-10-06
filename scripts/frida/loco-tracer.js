@@ -54,7 +54,6 @@ Java.perform(function () {
     hookKeyGeneratorGetInstance(); // Kakaotalk
     hookKeyGeneratorGetInstance2();
     hookKeyGeneratorGetInstance3();
-    hookKeyGeneratorInit(); // Kakaotalk
     hookKeyPairGeneratorGetInstance(); // Kakaotalk
     */
     // hookV2SLSinkInit(); // Kakaotalk
@@ -79,6 +78,7 @@ Java.perform(function () {
     // hookIVParameterSpecDefInit2(); // Kakaotalk
     // hookSecretKeySpecDefInit1(); // Kakaotalk
     // hookSecretKeySpecDefInit2(); // Kakaotalk
+    hookKeyGeneratorInit(); // Kakaotalk
     hookKeyGeneratorGenerateKey(); // Kakaotalk
     hookLocoCipherHelper();
     // hookLocoCipherHelper_2();
@@ -88,7 +88,7 @@ Java.perform(function () {
     hookSecretChatHelper();
     hookSecretChatHelper_2();
     hookSecretChatHelper_3();
-    hookLocoPubKeyInfo();
+    // hookLocoPubKeyInfo();
     // hookWTFbase64();
     // hookLocoCipherHelper_5();
     // hookLocoSKeyInfo();
@@ -777,7 +777,7 @@ function hookLocoCipherHelper_6() {
     var locoCipherHelper = Java.use("com.kakao.talk.secret.LocoCipherHelper")["l"].overload();
     locoCipherHelper.implementation = function () {
         console.log("hookLocoCipherHelper6 called!");
-        key = locoCipherHelper.call(this);
+        var key = locoCipherHelper.call(this);
         dumpByteArray("Generated shared secret", key);
         console.log("##############################################")
         return locoCipherHelper.call(this);
