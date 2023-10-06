@@ -72,11 +72,9 @@ class LocoEncryptedPacket:
         self.payload = payload
 
     def create_new_packet(self, loco_packet: LocoPacket) -> bytes:
-        # new_iv = os.urandom(16)
-
         if not loco_packet:
             logging.error(
-                "Could not create LOCO encrypted packet: Loco packet data is None."
+                "Could not create LOCO encrypted packet: LOCO packet data is None."
             )
             return None
 
@@ -309,7 +307,7 @@ class LocoParser:
             self.loco_encrypted_packet.create_new_packet(self.loco_packet),
         )
 
-    def remove_stored_shared_secret(self, recipient_user_id):
+    def remove_stored_shared_secret(self):
         if not self.loco_packet:
             return None
 
@@ -320,75 +318,11 @@ class LocoParser:
         if self.loco_packet.loco_command not in {"SCREATE", "CHATONROOM"}:
             return None
 
-        if (
-            self.loco_packet.loco_command == "SCREATE"
-            and self.loco_packet.body_payload.get("status") != 0
-        ):
-            logging.info("Replacing SCREATE body...")
-            screate_body = {
-                "status": 0,
-                "c": 9388354540351878,
-                "r": {
-                    "chatId": 9388354540351878,
-                    "members": [
-                        {
-                            "userId": 405368740,
-                            "accountId": 262855419,
-                            "nickName": "furztrocken",
-                            "countryIso": "DE",
-                            "profileImageUrl": "",
-                            "fullProfileImageUrl": "",
-                            "originalProfileImageUrl": "",
-                            "statusMessage": "",
-                            "linkedServices": "",
-                            "type": -999999,
-                            "suspended": False,
-                        },
-                        {
-                            "userId": recipient_user_id,
-                            "accountId": 256190398,
-                            "nickName": "peterplan",
-                            "countryIso": "DE",
-                            "profileImageUrl": "",
-                            "fullProfileImageUrl": "",
-                            "originalProfileImageUrl": "",
-                            "statusMessage": "",
-                            "linkedServices": "",
-                            "type": -999999,
-                            "suspended": False,
-                        },
-                    ],
-                    "activeMemberIds": [405368740, recipient_user_id],
-                    "watermarks": [3122424091315798016, 3122424091315798016],
-                    "lastMessage": None,
-                    "lastUpdatedAt": None,
-                    "lastLogId": 0,
-                    "newMessageCount": -1,
-                    "type": "SDirectChat",
-                    "pushAlert": None,
-                    "metaRevisions": None,
-                    "o": 1693159158,
-                    "pct": None,
-                },
-                "sc": 3122424099724080067,
-                "pi": [
-                    {
-                        "u": recipient_user_id,
-                        "ek": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyfkeppzP/qOIUXRqzHt+KjE/sz5tMCwf3Y7Xz+SoDU2kYVTjZS1NWtNMT4gFhiVVsX+uwdwEU0ijgg07zX9GM45HZJoj+Wrb58pNHBUqfksR/oXcX5jBASDh3Oks7Naw2FLdtFdqh1uISzYKA7Ubo0C8ep4N7PVYJdJvsa83nFYbfVi7WTCZJqixla4of+yVaj+XNq/+n8hew8pJEW2hx1szJjqfZSskTTUwASiWBTSdHktnv6y7N8Ls32buAfZu+Oqzw5DRJrWL8iLLx9hkM1T5dPTrc2RcabuG/YiamPaVN9P1iGz2HM9b0fUBFvH8e8REaujlOQVr3cyl/rezdQIDAQAB",
-                        "sk": "odgQ7ds/Pz9AlC7kNSVCLFHZAvRCMUVPzc3R3FZlqAI=",
-                        "pt": 3122418946040168677,
-                        "cs": "",
-                    }
-                ],
-                "nc": True,
-            }
-            self.loco_packet.body_payload = screate_body
-
-        """
         if self.loco_packet.body_payload.get("pi"):
-            logging.info("Removing public key from %s packet.", self.loco_packet.loco_command)
+            logging.info(
+                "Removing public key from %s packet.", self.loco_packet.loco_command
+            )
             self.loco_packet.body_payload.pop("pi")
-        """
 
         if self.loco_packet.body_payload.get("si"):
             logging.info(
