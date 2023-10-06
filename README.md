@@ -123,12 +123,12 @@ frida --codeshare pcipolloni/universal-android-ssl-pinning-bypass-with-frida -U 
   - One phone number per account only
 - Open a new Incognito window, go to https://accounts.kakao.com and create an account:
 ```
-furztrocken
-ahmad.sprenger@ulm-dsl.de
+rogerthat
+erich.hiller@ulm-dsl.de
 kBB5mmmE
 
-peterock
-folkert.dachs@ulm-dsl.de
+affirmative
+artur.ruff@ulm-dsl.de
 fMcz2Jtr
 ```
 - In the KakaoTalk app, login with your email address:
