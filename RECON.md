@@ -21,7 +21,7 @@
 - [Native Libs](#native-libs)
 - [Open-Source Libs](#open-source-libs)
 - [Crypto](#crypto)
-  - [E2E](#e2e)
+  - [Secret Chat](#secret-chat)
 
 ## Related Work
 
@@ -230,9 +230,7 @@ Many many (exported) `BROWSABLE` Activities.
 
 ## WebViews
 
-Cookies are encrypted with the hard-coded passphrase `KaKAOtalkForever`.
-
-**TO-DO**: Check for interesting [WebViews](./recon/nuclei_android_results.txt).
+See [here](./recon/webview/WEBVIEW.md).
 
 ## Firebase
 
@@ -455,7 +453,7 @@ Version: 3
 *******************************************
 ```
 
-### E2E
+### Secret Chat
 
 E2E is opt-in only. Most people probably don’t use Secret Chat since `In a secret chatrooom, features including free calling, polls, events and chatroom album are currently not available`.
 
