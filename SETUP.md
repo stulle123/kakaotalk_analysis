@@ -1,32 +1,38 @@
-# Setup
+# Mac M1 Setup
 
+- [Create KakaoTalk account](#kakaotalk-account-setup)
 - [Install Tools](#install-tools)
-  - [SSH](#ssh)
-  - [Setup Burp Suite](#configure-emulator-to-work-with-burp-suite)
+  - [Setup Burp Suite](#configure-android-emulator-to-work-with-burp-suite)
   - [Setup Frida](#setup-frida-to-disable-certificate-pinning)
-  - [Kakaotalk Login](#kakaotalk-account-setup)
+  - [SSH](#optional-setup-sshd-on-the-android-emulator)
   - [Tools to try](#tools-to-play-with)
 - [Misc Commands](#misc-commands)
 - [Resources](#resources)
+
+## KakaoTalk Account Setup
+
+- Grab a trash email account (e.g., from https://ulm-dsl.de/)
+- Grab a trash phone number to receive SMS messages (e.g., https://onlinesim.io)
+- Create a new account via the KakaoTalk mobile app or via https://accounts.kakao.com
 
 ## Install Tools
 
 Prepare your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-JAVA=/usr/local/opt/openjdk/bin
+JAVA=/opt/homebrew/opt/openjdk/bin
 export PATH=$JAVA:$PATH
-export ANDROID_HOME=/usr/local/share/android-commandlinetools
+export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
 export PATH=$PATH:$ANDROID_HOME/emulator
 ```
 
-Install Android Emulator on a MAC M1:
+Install Android Emulator on a Mac M1:
 
 ```bash
 # Install Homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # Install Java
-brew install openjdk
+brew install java
 # Install Android SDK
 brew install --cask android-commandlinetools
 sdkmanager "emulator"
@@ -45,35 +51,13 @@ sed -i -r 's/hw.mainKeys = yes/hw.mainKeys = no/' ~/.android/avd/kakao.avd/confi
 
 Install required tools:
 
-- Get latest [jadx](https://github.com/skylot/jadx) (or install via `brew`)
+- Get latest [jadx](https://nightly.link/skylot/jadx/workflows/build-artifacts/master)
 - Get [Burp Suite](https://portswigger.net/burp/communitydownload)
-- `$ brew install apktool jadx nuclei sqlite db-browser-for-sqlite`
+- Get [KakaoTalk for Windows/MacOS](https://www.kakaocorp.com/page/service/service/KakaoTalk?lang=en)
+- `$ brew install apktool nuclei sqlite db-browser-for-sqlite`
 - `$ pip3 install --upgrade frida-tools mitmproxy`
-- Install [Kakaotalk for Windows](https://app-pc.kakaocdn.net/talk/win32/KakaoTalk_Setup.exe) via [wine and brew](https://wiki.winehq.org/MacOS)
 
-### SSH
-
-```bash
-# Download Termux from https://github.com/termux/termux-app and install it, e.g.:
-adb install termux-app_v0.118.0+github-debug_arm64-v8a.apk
-# Install openssh in Termux
-pkg upgrade
-pkg install openssh
-# Set a password for the SSH login in Termux
-passwd
-# Start SSH in Termux
-sshd
-# On your host set up redirection through the emulator console
-cat ~/.emulator_console_auth_token
-telnet localhost 5554
-auth <your-emulator-token>
-redir add tcp:4444:8022
-exit
-# SSH into the emulator (no need to specify a user name)
-ssh -p 4444 localhost
-```
-
-### Configure Emulator to work with Burp Suite
+### Configure Android Emulator to work with Burp Suite
 
 - Export Burp's CA certificate in `DER` format
 - Next, follow these steps:
@@ -116,26 +100,27 @@ adb push burp_ca_cert.der /data/local/tmp/cert-der.crt
 frida --codeshare pcipolloni/universal-android-ssl-pinning-bypass-with-frida -U -f com.kakao.talk
 ```
 
-### KakaoTalk Account Setup
+### Optional: Setup SSHD on the Android Emulator
 
-- Grab a trash email account (e.g., from https://ulm-dsl.de/)
-- Grab a trash phone number to receive SMS messages (e.g., https://onlinesim.io)
-  - One phone number per account only
-- Open a new Incognito window, go to https://accounts.kakao.com and create an account:
+```bash
+# Download Termux from https://github.com/termux/termux-app and install it, e.g.:
+adb install termux-app_v0.118.0+github-debug_arm64-v8a.apk
+# Install openssh in Termux
+pkg upgrade
+pkg install openssh
+# Set a password for the SSH login in Termux
+passwd
+# Start SSH in Termux
+sshd
+# On your host set up redirection through the emulator console
+cat ~/.emulator_console_auth_token
+telnet localhost 5554
+auth <your-emulator-token>
+redir add tcp:4444:8022
+exit
+# SSH into the emulator (no need to specify a user name)
+ssh -p 4444 localhost
 ```
-rogerthat
-erich.hiller@ulm-dsl.de
-kBB5mmmE
-
-affirmative
-artur.ruff@ulm-dsl.de
-fMcz2Jtr
-```
-- In the KakaoTalk app, login with your email address:
-  - When prompted add your phone number. You'll receive a SMS with a pin number.
-  - You may have to send a SMS including a base64 string (e.g., `KakaoTalk HgAAABIwAGgAQGQAAAAAAjEABwAAADE1Mjc2MAAA`) to a KakaoTalk phone number (you won't receive any SMS response back). After that, you need to tap/click the `Check verification` button in the app and the registration process should be completed.
-
-<img width="318" alt="image" src="https://user-images.githubusercontent.com/14765446/233626988-8bf6be98-c855-4f29-99cb-77d2d44dcb60.png">
 
 ### Tools to play with
 
@@ -148,7 +133,6 @@ fMcz2Jtr
 - https://github.com/sensepost/objection
   - Run: `$ objection -g com.kakao.talk explore`
   - `com.kakao.talk on (Android: 9) [usb] # android hooking watch class com.kakao.talk.secret.LocoCipherHelper` (for me this only worked for SDK 28)
-- https://github.com/MobSF/Mobile-Security-Framework-MobSF
 - https://github.com/JakeWharton/pidcat
   - Hint: if only color codes are printed, try this [fix](https://github.com/JakeWharton/pidcat/issues/182)
 - Nuclei
@@ -191,7 +175,7 @@ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore my-release-key.
 
 ## Resources
 
-Third-party Kakaotalk clients:
+Open-Source KakaoTalk clients:
 
 - https://github.com/KiwiTalk/KiwiTalk
 - https://github.com/jhleekr/kakao.py
