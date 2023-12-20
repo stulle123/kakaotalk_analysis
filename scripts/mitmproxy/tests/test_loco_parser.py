@@ -79,8 +79,8 @@ def parser():
 
 
 @pytest.fixture(params=_LOCO_PACKETS_YAML)
-def loco_packet_packet(request):
-    with open(Path(request.param), encoding="utf-8") as packet_yaml:
+def loco_packet_packet(request, shared_datadir):
+    with open((shared_datadir / request.param), encoding="utf-8") as packet_yaml:
         loco_packet_dict = yaml.load(packet_yaml)
 
     return LocoPacket(
@@ -103,11 +103,11 @@ def loco_zip(request):
     return request.param
 
 
-def test_parse(parser, loco_zip):
+def test_parse(parser, loco_zip, shared_datadir):
     encrypted_loco_packet_path, loco_packet_yaml_path = loco_zip
 
-    with open(encrypted_loco_packet_path, "rb") as packet_raw, open(
-        loco_packet_yaml_path, encoding="utf-8"
+    with open((shared_datadir / encrypted_loco_packet_path), "rb") as packet_raw, open(
+        (shared_datadir / loco_packet_yaml_path), encoding="utf-8"
     ) as packet_yaml:
         encrypted_loco_packet = packet_raw.read()
         loco_packet_dict = yaml.load(packet_yaml)
@@ -126,13 +126,17 @@ def test_parse(parser, loco_zip):
     assert parser.loco_packet.get_packet_as_dict() == packet.get_packet_as_dict()
 
 
-def test_inject_public_key(parser, loco_encrypted_packet):
+def test_inject_public_key(parser, loco_encrypted_packet, shared_datadir):
     rsa_key_pair = get_rsa_2048_key_pair()
 
-    with open(Path("encrypted_screate_packet_with_mitm_key.raw"), "rb") as packet_raw:
+    with open(
+        (shared_datadir / "encrypted_screate_packet_with_mitm_key.raw"), "rb"
+    ) as packet_raw:
         encrypted_screate_packet_with_mitm_key = packet_raw.read()
 
-    with open(Path("screate_loco_packet.yaml"), encoding="utf-8") as packet_yaml:
+    with open(
+        (shared_datadir / "screate_loco_packet.yaml"), encoding="utf-8"
+    ) as packet_yaml:
         screate_dict = yaml.load(packet_yaml)
 
     original_public_key = screate_dict.get("body_payload").get("pi")[0].get("ek")
@@ -159,11 +163,12 @@ def test_inject_public_key(parser, loco_encrypted_packet):
     )
 
 
-def test_get_shared_secret(parser):
+def test_get_shared_secret(parser, shared_datadir):
     rsa_key_pair = get_rsa_2048_key_pair()
 
     with open(
-        Path("setsk_loco_packet_sk_enc_with_mitm_key.yaml"), encoding="utf-8"
+        (shared_datadir / "setsk_loco_packet_sk_enc_with_mitm_key.yaml"),
+        encoding="utf-8",
     ) as packet_yaml:
         setsk_dict = yaml.load(packet_yaml)
 
@@ -189,12 +194,13 @@ def test_get_shared_secret(parser):
     assert parser.get_shared_secret(rsa_key_pair) == decrypted_shared_secret
 
 
-def test_encrypt_shared_secret(parser, loco_encrypted_packet):
-    with open(Path("encrypted_setsk_packet.raw"), "rb") as packet_raw:
+def test_encrypt_shared_secret(parser, loco_encrypted_packet, shared_datadir):
+    with open((shared_datadir / "encrypted_setsk_packet.raw"), "rb") as packet_raw:
         encrypted_setsk_packet = packet_raw.read()
 
     with open(
-        Path("setsk_loco_packet_sk_enc_with_mitm_key.yaml"), encoding="utf-8"
+        (shared_datadir / "setsk_loco_packet_sk_enc_with_mitm_key.yaml"),
+        encoding="utf-8",
     ) as packet_yaml:
         setsk_dict = yaml.load(packet_yaml)
 

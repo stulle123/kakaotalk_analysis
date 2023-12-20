@@ -1,39 +1,5 @@
 /*
-TODO:
-- Hook Ed25519 (verify and sign)
-- AESCTRHelper
-- CipherSpec
-- Aes256Cipher
-- SimpleCipher
-- Hook Java Crypto APIs:
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.Signature;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-import lc2.EdDSAEngine;
-import lc2.EdDSAPrivateKey;
-import lc2.EdDSAPublicKey;
-import oc2.EdDSANamedCurveSpec;
-import oc2.EdDSANamedCurveTable;
-import oc2.EdDSAParameterSpec;
-import oc2.EdDSAPrivateKeySpec;
-import oc2.EdDSAPublicKeySpec;
+KakaoTalk 10.4.3
 */
 
 Java.perform(function () {
@@ -56,57 +22,51 @@ Java.perform(function () {
     hookKeyGeneratorGetInstance3();
     hookKeyPairGeneratorGetInstance(); // Kakaotalk
     */
-    // hookV2SLSinkInit(); // Kakaotalk
-    hookCipherInit();
-    hookCipherInit2(); // Kakaotalk
+    // hookCipherInit();
+    // hookCipherInit2(); // Kakaotalk
     // hookCipherInit3();
     // hookCipherInit4(); // Kakaotalk
     // hookCipherInit5();
-    hookCipherInit6(); // Kakaotalk
+    // hookCipherInit6(); // Kakaotalk
     // hookCipherInit7();
     // hookCipherInit8();
     // hookPBEKeySpec();
     // hookPBEKeySpec2();    
     // hookPBEKeySpec3(); // Kakaotalk
-    hookDoFinal();
+    // hookDoFinal();
     // hookDoFinal2(); // Kakaotalk
-    hookDoFinal3();
-    hookDoFinal4();
-    hookDoFinal5();
-    hookDoFinal7();
+    // hookDoFinal3();
+    // hookDoFinal4();
+    // hookDoFinal5();
+    // hookDoFinal7();
     // hookIVParameterSpecDefInit1(); // Kakaotalk
     // hookIVParameterSpecDefInit2(); // Kakaotalk
     // hookSecretKeySpecDefInit1(); // Kakaotalk
     // hookSecretKeySpecDefInit2(); // Kakaotalk
-    hookKeyGeneratorInit(); // Kakaotalk
+    // hookKeyGeneratorInit(); // Kakaotalk
     hookKeyGeneratorGenerateKey(); // Kakaotalk
-    hookLocoCipherHelper();
+    hookSharedSecretStore();
     // hookLocoCipherHelper_2();
-    hookLocoCipherHelper_3();
-    hookLocoCipherHelper_4();
-    hookLocoCipherHelper_6();
-    hookSecretChatHelper();
-    hookSecretChatHelper_2();
-    hookSecretChatHelper_3();
+    // hookLocoCipherHelper_GenerateRSAPrivateKey();
+    // hookLocoCipherHelper_GenerateRSAPublicKey();
+    // hookSecretChatHelper_3();
     // hookLocoPubKeyInfo();
-    // hookWTFbase64();
     // hookLocoCipherHelper_5();
-    // hookLocoSKeyInfo();
+    // printLocoBody();
     // hookTalkLocoPKStore();
     // hookTalkLocoPKStore_2();
-    // hookAESCTRHelper();
-    // hookAESCTRKeySet();
+    // hookAESCTRHelper_GenerateIV();
+    // printAESCTRKeySet();
     // enableWebviewDebugging();
-    // hookTest();
-    // hookURIController();
     // deepLinkSniffer();
     // hookStrings();
 });
 
 const locoKey = Java.array("byte", [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
-const doNotHookFileNames = ["SimpleCipher.kt", "AccountUpdater.kt", "DataBaseResourceCrypto.kt", "CookieContentEncryptor.java", "Aes256Cipher.kt", "V2SLSink.kt", "V2SLSource.kt", "V2SLHandshake.kt", "LocoV2SLSocket.kt"]
-const patchKey = true;
-const printStacktrace = true;
+const locoFileNames = ["V2SLSink.kt", "V2SLSource.kt", "V2SLHandshake.kt", "LocoV2SLSocket.kt"];
+const doNotHookFileNames = ["SimpleCipher.kt", "AccountUpdater.kt", "DataBaseResourceCrypto.kt", "CookieContentEncryptor.java", "Aes256Cipher.kt", "TiaraEncrypt.java"].concat(locoFileNames);
+const patchLocoKey = true;
+const printStacktrace = false;
 const hookAllClasses = false;
 
 var StringCls = null;
@@ -306,11 +266,11 @@ function hookDoFinal2() {
         var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
         if (!(doNotHookFileNames.includes(caller.getFileName())) || hookAllClasses) {
             console.log("[Cipher.doFinal2()]: " + "  cipherObj: " + this);
-            console.log("Caller " + caller.getFileName())
+            console.log("Caller: " + caller.getFileName())
             dumpByteArray("In buffer (cipher: " + this.getAlgorithm() + ")", byteArr);
             // dumpByteArray("Result", tmp);
             var result_base64 = Java.use("android.util.Base64").encodeToString(tmp, 0);
-            console.log("Result in Base64: " + result_base64)
+            // console.log("Result in Base64: " + result_base64)
             if (printStacktrace) {
                 var stacktrace = Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Exception").$new()).replace("java.lang.Exception", "")
                 console.log(stacktrace);
@@ -616,8 +576,8 @@ function hookKeyGeneratorGenerateKey() {
                 console.log(stacktrace);
             }
         }
-        if (patchKey) {
-            console.log("Patching LOCO AES key...")
+        if (patchLocoKey) {
+            dumpByteArray("Patching LOCO AES key with key", locoKey);
             const SecretKeySpec = Java.use("javax.crypto.spec.SecretKeySpec");
             var fakeKey = SecretKeySpec.$new(locoKey, "AES");
             tmp = fakeKey
@@ -687,27 +647,16 @@ function hookPBEKeySpec3() {
 /*
     .overload("xc2.b0", "java.security.Key")
 */
-function hookV2SLSinkInit() {
-    var V2SLSinkInit = Java.use("mw0.d")["$init"].overload("xc2.b0", "java.security.Key");
-    V2SLSinkInit.implementation = function (arg0, arg1) {
-        var tmp = this.$init(arg0, arg1);
-        const secretKeySpec = Java.cast(arg1, Java.use("javax.crypto.spec.SecretKeySpec"));
-        const encodedKey = secretKeySpec.getEncoded();
-        dumpByteArray("V2SLSinkInit called with AES Key", encodedKey);
-        console.log("##############################################")
-    }
-}
 
-function hookLocoCipherHelper() {
+function hookSharedSecretStore() {
     var locoCipherHelper = Java.use("com.kakao.talk.secret.LocoCipherHelper$e")["$init"].overload("java.lang.String", "long");
     locoCipherHelper.implementation = function (arg0, arg1) {
         var tmp = this.$init(arg0, arg1);
-        console.log("hookLocoCipherHelper called!");
         var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
-        console.log(caller.getFileName());
-        console.log("Master key: " + arg0);
-        console.log("Nonce: " + arg1);
+        console.log("Secret Chat shared secret: " + arg0);
+        console.log("Secret Chat seed for nonce: " + arg1);
         console.log(this.toString());
+        console.log("Caller: " + caller.getFileName());
         console.log("##############################################")
     }
 }
@@ -724,12 +673,11 @@ function hookLocoCipherHelper_2() {
     }
 }
 
-function hookLocoCipherHelper_3() {
+function hookLocoCipherHelper_GenerateRSAPrivateKey() {
     var locoCipherHelper = Java.use("com.kakao.talk.secret.LocoCipherHelper")["e"].overload("java.lang.String");
     locoCipherHelper.implementation = function (arg0) {
-        console.log("hookLocoCipherHelper3 called!");
         var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
-        console.log(caller.getFileName());
+        console.log("Caller: " + caller.getFileName());
         var private_key = locoCipherHelper.call(this, arg0);
         // var encoded_key = Java.use("android.util.Base64").encodeToString(private_key.getEncoded(), 0);
         console.log("Generate RSA private key from string: " + arg0);
@@ -739,13 +687,12 @@ function hookLocoCipherHelper_3() {
     }
 }
 
-function hookLocoCipherHelper_4() {
+function hookLocoCipherHelper_GenerateRSAPublicKey() {
     var locoCipherHelper = Java.use("com.kakao.talk.secret.LocoCipherHelper")["f"].overload("java.lang.String");
     locoCipherHelper.implementation = function (arg0) {
-        console.log("hookLocoCipherHelper4 called!");
         var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
         var ret = locoCipherHelper.call(this, arg0);
-        console.log("Caller " + caller.getFileName());
+        console.log("Caller: " + caller.getFileName());
         console.log("Generate RSA public key from string: " + arg0);
         var public_key = locoCipherHelper.call(this, arg0);
         // var encoded_key = Java.use("android.util.Base64").encodeToString(public_key.getEncoded(), 0);
@@ -773,19 +720,8 @@ function hookLocoCipherHelper_5() {
     }
 }
 
-function hookLocoCipherHelper_6() {
-    var locoCipherHelper = Java.use("com.kakao.talk.secret.LocoCipherHelper")["l"].overload();
-    locoCipherHelper.implementation = function () {
-        console.log("hookLocoCipherHelper6 called!");
-        var key = locoCipherHelper.call(this);
-        dumpByteArray("Generated shared secret", key);
-        console.log("##############################################")
-        return locoCipherHelper.call(this);
-    }
-}
-
 function hookLocoPubKeyInfo() {
-    var locoPubKeyInfo = Java.use("tz0.n")["$init"].overload("com.kakao.talk.loco.protocol.LocoBody");
+    var locoPubKeyInfo = Java.use("t41.n")["$init"].overload("com.kakao.talk.loco.protocol.LocoBody");
     locoPubKeyInfo.implementation = function (locoBody) {
         var tmp = this.$init(locoBody);
         console.log("locoPubKeyInfo called!");
@@ -793,36 +729,6 @@ function hookLocoPubKeyInfo() {
         console.log(caller.getFileName());
         console.log(locoBody);
         console.log("##############################################")
-    }
-}
-
-function hookSecretChatHelper() {
-    var secretChatHelper = Java.use("com.kakao.talk.secret.b")["k"].overload("long", "long");
-    secretChatHelper.implementation = function (arg0, arg1) {
-        console.log("secretChatHelper called!");
-        var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
-        console.log(caller.getFileName());
-        console.log("Long 1: " + arg0);
-        console.log("Long 2: " + arg1);
-        var ret = secretChatHelper.call(this, arg0, arg1);
-        console.log("##############################################")
-        return secretChatHelper.call(this, arg0, arg1);
-    }
-}
-
-function hookSecretChatHelper_2() {
-    var secretChatHelper = Java.use("com.kakao.talk.secret.b$e")["a"].overload("long", "long");
-    secretChatHelper.implementation = function (arg0, arg1) {
-        console.log("secretChatHelper2 called!");
-        var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
-        console.log(caller.getFileName());
-        console.log("Long 1: " + arg0);
-        console.log("Long 2: " + arg1);
-        var ret = secretChatHelper.call(this, arg0, arg1);
-        console.log(ret);
-        console.log(this.a);
-        console.log("##############################################")
-        return secretChatHelper.call(this, arg0, arg1);
     }
 }
 
@@ -838,40 +744,20 @@ function hookSecretChatHelper_3() {
     }
 }
 
-function hookWTFbase64() {
-    var wtfBase64 = Java.use("com.kakao.talk.util.r")["a"].overload("java.lang.String");
-    wtfBase64.implementation = function (arg0) {
-        var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
-        if (!(doNotHookFileNames.includes(caller.getFileName())) || hookAllClasses) {
-            console.log("WTF called");
-            console.log("Caller: " + caller.getFileName());
-            console.log("Base64 encoded: " + arg0);
-            var ret = wtfBase64.call(this, arg0);
-            dumpByteArray("Base64 decoded bytes", ret);
-            console.log("##############################################")
-        }
-        return wtfBase64.call(this, arg0);
-    }
-}
+function printLocoBody() {
+    Java.choose("com.kakao.talk.loco.protocol.LocoBody", {
+        onMatch: function (instance) {
+            if (instance) {
+                console.log("LOCO body: " + instance);
+            }
+        },
+        onComplete: function () { }
 
-function hookLocoSKeyInfo() {
-    var locoSKeyInfo = Java.use("tz0.o")["$init"].overload("com.kakao.talk.loco.protocol.LocoBody");
-    locoSKeyInfo.implementation = function (arg0) {
-        var tmp = this.$init(arg0);
-        console.log("hookLocoSKeyInfo called!");
-        var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
-        console.log("au: " + this.a);
-        console.log("sk: " + this.b);
-        console.log("as: " + this.c);
-        console.log("pt: " + this.d);
-        console.log("apt: " + this.e);
-        console.log("st: " + this.f);
-        console.log("##############################################")
-    }
+    });
 }
 
 function hookTalkLocoPKStore() {
-    var talkLocoPKStore = Java.use("df1.e4")["toString"].overload();
+    var talkLocoPKStore = Java.use("yl1.x3")["toString"].overload();
     talkLocoPKStore.implementation = function () {
         console.log("talkLocoPKStore called!");
         var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
@@ -884,7 +770,7 @@ function hookTalkLocoPKStore() {
 }
 
 function hookTalkLocoPKStore_2() {
-    var talkLocoPKStore = Java.use("df1.e4$a")["toString"].overload();
+    var talkLocoPKStore = Java.use("yl1.x3$a")["toString"].overload();
     talkLocoPKStore.implementation = function () {
         console.log("talkLocoPKStore2 called!");
         var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
@@ -896,20 +782,18 @@ function hookTalkLocoPKStore_2() {
     }
 }
 
-function hookAESCTRHelper() {
-    var AESCTRHelper = Java.use("sy.a")["b"].overload("java.lang.String", "[B", "int", "javax.crypto.spec.PBEKeySpec");
+function hookAESCTRHelper_GenerateIV() {
+    var AESCTRHelper = Java.use("d20.a")["b"].overload("java.lang.String", "[B", "int", "javax.crypto.spec.PBEKeySpec");
     AESCTRHelper.implementation = function (arg0, arg1, arg2, arg3) {
-        console.log("hookAESCTRHelper called!");
         dumpByteArray("Generated IV", arg1);
         console.log("##############################################");
         return AESCTRHelper.call(this, arg0, arg1, arg2, arg3);
     }
 }
 
-function hookAESCTRKeySet() {
-    var AESCTRKeySet = Java.use("sy.b")["$init"].overload("[B", "[B", "[B");
+function printAESCTRKeySet() {
+    var AESCTRKeySet = Java.use("d20.b")["$init"].overload("[B", "[B", "[B");
     AESCTRKeySet.implementation = function (arg0, arg1, arg2) {
-        console.log("AESCTRKeySet called!");
         dumpByteArray("Secret key", arg0);
         dumpByteArray("IV", arg1);
         dumpByteArray("arg2", arg2);
@@ -984,20 +868,6 @@ function enableWebviewDebugging() {
         this.onPageStarted.overload("android.webkit.WebView", "java.lang.String", "android.graphics.Bitmap").call(this, view, url, favicon);
     }
 
-    var loadURL = Java.use("com.kakao.talk.gametab.widget.webview.KGWebViewLayout").j.overload("android.webkit.WebView", "java.lang.String", "java.util.Map");
-    loadURL.implementation = function (arg0, arg1, arg2) {
-        console.log("KGWebViewLayout loadURL START");
-        console.log(arg0);
-        console.log(arg1);
-        printMap(arg2);
-        if (printStacktrace) {
-            var stacktrace = Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Exception").$new()).replace("java.lang.Exception", "")
-            console.log(stacktrace);
-        }
-        console.log("KGWebViewLayout loadURL  END");
-        return this.j(arg0, arg1, arg2);
-    }
-
     var webviewHelper = Java.use("com.kakao.talk.widget.webview.WebViewHelper");
 
     var downloadFile = webviewHelper.newDownloadFile.overload("java.lang.String");
@@ -1018,102 +888,6 @@ function enableWebviewDebugging() {
         console.log(ret);
         return ret;
     }
-
-    /*
-    var hookHelp = Java.use("com.kakao.talk.webview.activity.HelpActivity").shouldOverrideUrlLoading.overload("android.webkit.WebView", "java.lang.String");
-    hookHelp.implementation = function (arg0, arg1) {
-        console.log("HELP START");
-        console.log(arg0);
-        console.log(arg1);
-        if (printStacktrace) {
-            var stacktrace = Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Exception").$new()).replace("java.lang.Exception", "")
-            console.log(stacktrace);
-        }
-        console.log("HELP END");
-        return this.shouldOverrideUrlLoading(arg0, arg1);
-    }
-    */
-
-    /*
-    var hookHelp2 = Java.use("com.kakao.talk.webview.activity.HelpActivity")["a"].overload("java.lang.String");
-    hookHelp2.implementation = function (arg0) {
-        console.log("HELP START");
-        console.log(arg0);
-        if (printStacktrace) {
-            var stacktrace = Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Exception").$new()).replace("java.lang.Exception", "")
-            console.log(stacktrace);
-        }
-        console.log("HELP END");
-        return this.a(arg0);
-    }
-    */
-
-    var hookHelp3 = Java.use("com.kakao.talk.webview.activity.HelpActivity")["loadUrl"].overload("java.lang.String", "java.util.Map");
-    hookHelp3.implementation = function (arg0, arg1) {
-        console.log("HELP START");
-        console.log(arg0);
-        if (printStacktrace) {
-            var stacktrace = Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Exception").$new()).replace("java.lang.Exception", "")
-            console.log(stacktrace);
-        }
-        console.log("HELP END");
-        return this.loadUrl(arg0, arg1);
-    }
-}
-
-function hookTest() {
-    var hookTest = Java.use("db2.q").O.overload("java.lang.String", "java.lang.String", "java.lang.Boolean");
-    hookTest.implementation = function (arg0, arg1, arg2) {
-        this.O.overload("java.lang.String", "java.lang.String", "java.lang.Boolean").call(this, arg0, arg1, arg2);
-        console.log(arg0);
-        console.log(arg1);
-    }
-}
-
-function hookURIController() {
-    var hookTest = Java.use("xv0.k").b.overload("android.content.Context", "android.net.Uri", "java.util.Map");
-    hookTest.implementation = function (arg0, arg1, arg2) {
-        console.log("URI Controller START");
-        console.log(arg0);
-        console.log(arg1);
-        printMap(arg2);
-        if (printStacktrace) {
-            var stacktrace = Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Exception").$new()).replace("java.lang.Exception", "");
-            console.log(stacktrace);
-        }
-        console.log("URI Controller END");
-        return this.b(arg0, arg1, arg2);
-    }
-
-    var hookTest2 = Java.use("xv0.k").a.overload("android.content.Context", "android.net.Uri", "java.util.Map");
-    hookTest2.implementation = function (arg0, arg1, arg2) {
-        console.log("URI Controller 2 START");
-        console.log(arg0);
-        console.log(arg1);
-        printMap(arg2);
-        if (printStacktrace) {
-            var stacktrace = Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Exception").$new()).replace("java.lang.Exception", "");
-            console.log(stacktrace);
-        }
-        console.log("URI Controller 2 END");
-        return this.a(arg0, arg1, arg2);
-    }
-
-    var hookStartIntent = Java.use("xv0.k").e.overload("android.content.Context", "java.lang.String");
-    hookStartIntent.implementation = function (context, str) {
-        console.log("Context: " + context);
-        console.log("String: " + str);
-        return this.e(context, str);
-    }
-
-    /*
-    var hookIntentChecker = Java.use("xv0.k").d.overload("android.content.Context", "java.lang.String", "java.lang.Boolean");
-    hookIntentChecker.implementation = function (context, str, bool) {
-        console.log("Context: " + context);
-        console.log("String: " + str);
-        return this.d(context, str, bool);
-    }
-    */
 }
 
 function deepLinkSniffer() {

@@ -27,10 +27,19 @@ PublicKey = K+t/qiGO8tlA9L7wjAOb8wqjnu/NuthHgLs2gOCIDgY=
 AllowedIPs = 0.0.0.0/0
 Endpoint = 10.0.2.2:51820
 ```
-- Import the config in the WireGuard app
+- Import the config into the WireGuard app
 
-Back on your MITM host start Frida (see [setup instructions](../../README.md#setup-frida-to-disable-certificate-pinning)):
+Back on your MITM host start Frida (see [setup instructions](../../SETUP.md#setup-frida-to-disable-certificate-pinning)):
 
 ```bash
+# Start frida-server
+$ adb root && adb shell /data/local/tmp/frida-server
+
+# Start LOCO debugging script
 $ frida -U -l loco-tracer.js -f com.kakao.talk
 ```
+
+To run the unit tests:
+
+- Install `pytest` and `pytest-datadir` via pip
+- Run the tests: `$ pytest tests/test_loco_parser.py`

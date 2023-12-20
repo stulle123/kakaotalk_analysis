@@ -1,8 +1,5 @@
 # pyproject.toml
 [tool.pytest.ini_options]
 pythonpath = [
-  ".", "lib",
-]
-testpaths = [
-    "tests",
+  ".",
 ]
