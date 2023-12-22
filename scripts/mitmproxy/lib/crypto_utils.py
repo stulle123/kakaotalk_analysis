@@ -1,4 +1,5 @@
 import math
+import re
 
 from cryptography.hazmat.primitives import hashes, hmac, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
@@ -41,6 +42,19 @@ def get_rsa_public_key_pem(key_pair):
     )
 
 
+def get_clean_public_key(key_pair) -> str:
+    mitm_public_key_pem = get_rsa_public_key_pem(key_pair).decode("utf-8")
+    header = "-----BEGIN PUBLIC KEY-----"
+    footer = "-----END PUBLIC KEY-----"
+    pattern = re.compile(
+        f"{header}|{footer}",
+        re.MULTILINE,
+    )
+    mitm_public_key_cleaned = pattern.sub("", mitm_public_key_pem).replace("\n", "")
+
+    return mitm_public_key_cleaned
+
+
 def rsa_encrypt(plaintext: bytes, public_key_pem: str, add_header_footer: bool = False):
     if add_header_footer:
         header = "-----BEGIN RSA PUBLIC KEY-----\n"
@@ -72,6 +86,11 @@ def rsa_decrypt(ciphertext: bytes, key_pair) -> bytes:
     return plaintext
 
 
+def get_e2e_encryption_key(shared_secret: bytes):
+    salt = b"53656372657443686174526f6f6d4b6579"
+    return compute_key(shared_secret, salt, 32)
+
+
 def compute_key(shared_secret: bytes, salt: bytes, length):
     kdf = PBKDF2HMAC(algorithm=hashes.SHA1(), length=length, salt=salt, iterations=2048)
     key = kdf.derive(shared_secret)
@@ -84,6 +103,7 @@ def compute_hmac(key, message):
     return h.finalize()
 
 
+# Code taken from KakaoTalk 10.4.3 Android sources
 def byte_juggling_1(i, i2, b_arr):
     z = i <= i2
 
@@ -102,6 +122,7 @@ def byte_juggling_1(i, i2, b_arr):
     return None
 
 
+# Code taken from KakaoTalk 10.4.3 Android sources
 def byte_juggling_2(b_arr, b_arr2):
     length = len(b_arr2)
 
@@ -119,6 +140,7 @@ def byte_juggling_2(b_arr, b_arr2):
     return b_arr4
 
 
+# Code taken from KakaoTalk 10.4.3 Android sources
 def compute_nonce(shared_secret: bytes, message_id):
     message_id_bytes = message_id.to_bytes(8, "little")
     salt_1 = b"53656372657443686174526f6f6d4b6579"  # SecretChatRoomKey

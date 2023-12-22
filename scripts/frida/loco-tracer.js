@@ -570,7 +570,9 @@ function hookKeyGeneratorGenerateKey() {
         if (!(doNotHookFileNames.includes(caller.getFileName())) || hookAllClasses) {
             console.log("[KeyGenerator.generateKey()]: Object: " + tmp);
             console.log("Caller: " + caller.getFileName());
-            dumpByteArray("[KeyGenerator.generateKey()]: Key", encodedKey);
+            // dumpByteArray("[KeyGenerator.generateKey()]: Key", encodedKey);
+            var base64_key = Java.use("android.util.Base64").encodeToString(encodedKey, 0);
+            console.log("Generated key: " + base64_key);
             if (printStacktrace) {
                 var stacktrace = Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Exception").$new()).replace("java.lang.Exception", "")
                 console.log(stacktrace);
