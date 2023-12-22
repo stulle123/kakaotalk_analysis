@@ -14,7 +14,7 @@ This is how one can run the PoC:
 - Wipe all entries in the `public_key_info` and `secret_key_info` tables from the `KakaoTalk.db` database
 - Start `mitmproxy`: `$ mitmdump -m wireguard -s mitm_secret_chat.py`
 - Start `Frida`: `$ frida -U -l loco-tracer.js -f com.kakao.talk`
-- Create new *Secret Chat* room in the KakaoTalk app and send a message
+- Create a new *Secret Chat* room in the KakaoTalk app and send a message
 - View message in `mitmproxy` terminal window
 
 How it works:
@@ -43,10 +43,8 @@ Android implementation specifics:
 
 TO-DOS:
 
-- Reinstall the app and check whether a warning shows up
-- Test CFB bit flipping
-- How are the msgId and chatId generated? -> nonce for CTR mode!
+- How are the `msgId` and `chatId` generated? -> they are used to compute the nonce for CTR mode!
 
 Demo:
 
-![MITM](https://github.com/stulle123/kakaotalk_analysis/tree/main/scripts/mitmproxy/secret_chat_demo.gif?raw=true)
+![](https://github.com/stulle123/kakaotalk_analysis/blob/main/scripts/mitmproxy/secret_chat_demo.gif)
