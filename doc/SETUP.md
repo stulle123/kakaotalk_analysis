@@ -53,7 +53,7 @@ Install required tools:
 
 - Get latest [jadx](https://nightly.link/skylot/jadx/workflows/build-artifacts/master)
 - Get [Burp Suite](https://portswigger.net/burp/communitydownload)
-- Get [KakaoTalk for Windows/MacOS](https://www.kakaocorp.com/page/service/service/KakaoTalk?lang=en)
+- Get [KakaoTalk for MacOS](https://www.kakaocorp.com/page/service/service/KakaoTalk?lang=en)
 - `$ brew install apktool nuclei sqlite db-browser-for-sqlite`
 - `$ pip3 install --upgrade frida-tools mitmproxy`
 

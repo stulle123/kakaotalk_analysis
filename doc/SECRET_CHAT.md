@@ -41,12 +41,10 @@ Android implementation specifics:
 - Receiver's public keys in table `public_key_info` of `KakaoTalk.db` database
 - Shared secret stored in table `secret_key_info` of `KakaoTalk.db` database
 
-TO-DOS:
+TODOS:
 
-- Reinstall the app and check whether a warning shows up
-- Test CFB bit flipping
 - How are the msgId and chatId generated? -> nonce for CTR mode!
 
 Demo:
 
-![MITM](https://github.com/stulle123/kakaotalk_analysis/tree/main/scripts/mitmproxy/secret_chat_demo.gif?raw=true)
+![MITM](https://github.com/stulle123/kakaotalk_analysis/tree/main/doc/secret_chat_demo.gif?raw=true)
