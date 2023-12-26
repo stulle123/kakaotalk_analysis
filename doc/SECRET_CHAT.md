@@ -47,4 +47,4 @@ TODOS:
 
 Demo:
 
-![MITM](https://github.com/stulle123/kakaotalk_analysis/tree/main/doc/secret_chat_demo.gif?raw=true)
+![](https://github.com/stulle123/kakaotalk_analysis/blob/main/doc/secret_chat_demo.gif)

