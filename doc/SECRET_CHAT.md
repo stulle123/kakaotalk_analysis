@@ -13,7 +13,7 @@ This is how one can run the PoC:
 - Assumption: You've already set up your test environment (see setup description [here](./SETUP.md))
 - Wipe all entries in the `public_key_info` and `secret_key_info` tables from the `KakaoTalk.db` database
 - Start `mitmproxy`: `$ mitmdump -m wireguard -s mitm_secret_chat.py`
-- Start `Frida`: `$ frida -U -l loco-tracer.js -f com.kakao.talk`
+- Start `Frida`: `$ frida -U -l trace_loco.js -f com.kakao.talk`
 - Create a new *Secret Chat* room in the KakaoTalk app and send a message
 - View message in `mitmproxy` terminal window
 

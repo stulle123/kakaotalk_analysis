@@ -50,7 +50,7 @@ class FlipCiphertextBits(LocoMitmBase):
 
             return
 
-        # Flip ciphertext bits to show CFB malleability
+        # Flip ciphertext bits of incoming messages to show CFB malleability
         if not message.from_client and self.parser.loco_packet.loco_command == "MSG":
             flipped_packet = self.parser.flip_bits(self.trigger_msg)
 
