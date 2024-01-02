@@ -2,36 +2,34 @@
 Debug WebViews.
 */
 
-import { printStacktrace, printMap } from "./utils.js";
+const enableStacktracePrinting = false;
 
 Java.perform(function () {
   enableWebviewDebugging();
 });
 
-const printStacktrace = false;
-
 function enableWebviewDebugging() {
   var Webview = Java.use("android.webkit.WebView");
 
   Webview.loadUrl.overload("java.lang.String").implementation = function (url) {
-    console.log("\n[+]Loading URL from", url);
+    console.log("\n[+] Loading URL from", url);
     console.log(
-      "[+]Setting the value of setWebContentsDebuggingEnabled() to TRUE"
+      "[+] Setting the value of setWebContentsDebuggingEnabled() to TRUE"
     );
-    if (printStacktrace) {
+    if (enableStacktracePrinting) {
       printStacktrace();
     }
     var js = this.getSettings().getJavaScriptEnabled();
-    console.log("[+]JS enabled: " + js);
+    console.log("[+] JS enabled: " + js);
 
     var mw = this.getSettings().supportMultipleWindows();
-    console.log("[+]Mutliple windows?: " + mw);
+    console.log("[+] Multiple windows?: " + mw);
 
     var fa = this.getSettings().getAllowFileAccess();
-    console.log("[+]File access: " + fa);
+    console.log("[+] File access: " + fa);
 
     var uf = this.getSettings().getAllowUniversalAccessFromFileURLs();
-    console.log("[+]Universal file access: " + uf);
+    console.log("[+] Universal file access: " + uf);
 
     this.setWebContentsDebuggingEnabled(true);
     this.loadUrl.overload("java.lang.String").call(this, url);
@@ -39,29 +37,29 @@ function enableWebviewDebugging() {
 
   Webview.loadUrl.overload("java.lang.String", "java.util.Map").implementation =
     function (url, additionalHttpHeaders) {
-      console.log("\n[+]Loading URL from", url);
-      console.log("[+]Additional Headers:");
+      console.log("\n[+] Loading URL from", url);
+      console.log("[+] Additional Headers:");
       var headers = Java.cast(additionalHttpHeaders, Java.use("java.util.Map"));
       printMap(headers);
       console.log(
-        "[+]Setting the value of setWebContentsDebuggingEnabled() to TRUE"
+        "[+] Setting the value of setWebContentsDebuggingEnabled() to TRUE"
       );
 
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
 
       var js = this.getSettings().getJavaScriptEnabled();
-      console.log("[+]JS enabled: " + js);
+      console.log("[+] JS enabled: " + js);
 
       var mw = this.getSettings().supportMultipleWindows();
-      console.log("[+]Multiple windows?: " + mw);
+      console.log("[+] Multiple windows?: " + mw);
 
       var fa = this.getSettings().getAllowFileAccess();
-      console.log("[+]File access: " + fa);
+      console.log("[+] File access: " + fa);
 
       var uf = this.getSettings().getAllowUniversalAccessFromFileURLs();
-      console.log("[+]Universal file access: " + uf);
+      console.log("[+] Universal file access: " + uf);
 
       this.setWebContentsDebuggingEnabled(true);
       this.loadUrl
@@ -71,7 +69,7 @@ function enableWebviewDebugging() {
 
   Webview.addJavascriptInterface.implementation = function (object, name) {
     console.log(
-      "[+]Javascript interface:" +
+      "[+] Javascript interface:" +
         object.$className +
         " instantiated as: " +
         name
@@ -86,7 +84,7 @@ function enableWebviewDebugging() {
     "android.graphics.Bitmap"
   ).implementation = function (view, url, favicon) {
     console.log("onPageStarted URL: " + url);
-    if (printStacktrace) {
+    if (enableStacktracePrinting) {
       printStacktrace();
     }
     this.onPageStarted
@@ -123,4 +121,18 @@ function enableWebviewDebugging() {
     console.log(ret);
     return ret;
   };
+}
+
+function printStacktrace() {
+  var stacktrace = Java.use("android.util.Log")
+    .getStackTraceString(Java.use("java.lang.Exception").$new())
+    .replace("java.lang.Exception", "");
+  console.log(stacktrace);
+}
+
+function printMap(map) {
+  var mapIter = map.entrySet().iterator();
+  while (mapIter.hasNext()) {
+    console.log(mapIter.next());
+  }
 }

@@ -2,14 +2,31 @@
 Hook most of Android's Crypto APIs.
 */
 
-import {
-  printStacktrace,
-  dumpByteArray,
-  decodeMode,
-  charArrayToString,
-} from "./utils.js";
+/*
+const doNotHookFileNames = [
+  "SimpleCipher.kt",
+  "AccountUpdater.kt",
+  "DataBaseResourceCrypto.kt",
+  "CookieContentEncryptor.java",
+  "Aes256Cipher.kt",
+  "TiaraEncrypt.java",
+];
+*/
+const doNotHookFileNames = [];
+const hookAllClasses = false;
+const dummyKey = Java.array(
+  "byte",
+  [
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,
+  ]
+);
+const patchKey = true;
+const enableStacktracePrinting = false;
+var StringCls = null;
 
 Java.perform(function () {
+  StringCls = Java.use("java.lang.String");
   hookCipherGetInstance();
   hookCipherGetInstance2();
   hookCipherGetInstance3();
@@ -49,29 +66,6 @@ Java.perform(function () {
 });
 
 /*
-const doNotHookFileNames = [
-  "SimpleCipher.kt",
-  "AccountUpdater.kt",
-  "DataBaseResourceCrypto.kt",
-  "CookieContentEncryptor.java",
-  "Aes256Cipher.kt",
-  "TiaraEncrypt.java",
-];
-*/
-
-const doNotHookFileNames = [];
-const dummyKey = Java.array(
-  "byte",
-  [
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,
-  ]
-);
-const patchKey = true;
-const hookAllClasses = false;
-const printStacktrace = false;
-
-/*
     .overload("java.lang.String")
     .overload("java.lang.String", "java.security.Provider")
     .overload("java.lang.String", "java.lang.String")
@@ -84,10 +78,10 @@ function hookCipherGetInstance() {
     var tmp = this.getInstance(type);
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       console.log("[Cipher.getInstance()]: type: " + type);
       console.log("[Cipher.getInstance()]:  cipherObj: " + tmp);
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -181,7 +175,7 @@ function hookCipherInit2() {
     // dumpByteArray("Secret key", key);
     var key_base64 = Java.use("android.util.Base64").encodeToString(key, 0);
     console.log("Base64 encoded key: " + key_base64);
-    if (printStacktrace) {
+    if (enableStacktracePrinting) {
       printStacktrace();
     }
     console.log("##############################################");
@@ -221,7 +215,7 @@ function hookCipherInit4() {
     var tmp = this.init(mode, secretKey, spec);
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       console.log(
         "[Cipher.init4()]: mode: " +
           decodeMode(mode) +
@@ -239,7 +233,7 @@ function hookCipherInit4() {
         Java.use("javax.crypto.spec.IvParameterSpec")
       );
       dumpByteArray("IV", ivParameterSpec.getIV());
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -298,7 +292,7 @@ function hookCipherInit6() {
         0
       );
       console.log("Secret key: " + secret_key_base64);
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -397,7 +391,7 @@ function hookDoFinal2() {
         0
       );
       // console.log("Result in Base64: " + result_base64)
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -542,10 +536,10 @@ function hookPBEKeySpec3() {
     console.log(
       "[PBEKeySpec.PBEKeySpec3()]: iter: " + iter + " key length: " + keyLength
     );
-    console.log(caller.getFileName());
+    console.log("Caller: " + caller.getFileName());
     dumpByteArray("Password", charArrayToString(pass).getBytes());
     dumpByteArray("Salt", salt);
-    if (printStacktrace) {
+    if (enableStacktracePrinting) {
       printStacktrace();
     }
     console.log("##############################################");
@@ -564,9 +558,9 @@ function hookIVParameterSpecDefInit1() {
   ivParameterSpecDef.implementation = function (arr) {
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       dumpByteArray("IV", arr);
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -582,9 +576,9 @@ function hookIVParameterSpecDefInit2() {
   ivParameterSpecDef.implementation = function (arr, off, len) {
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       dumpByteArray("IV", arr);
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -604,9 +598,9 @@ function hookSecretKeySpecDefInit1() {
   secretKeySpecDef.implementation = function (arr, alg) {
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       dumpByteArray(alg + " Secret Key", arr);
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -622,9 +616,9 @@ function hookSecretKeySpecDefInit2() {
   secretKeySpecDef.implementation = function (arr, off, len, alg) {
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       dumpByteArray(alg + " Secret Key", arr);
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -738,10 +732,10 @@ function hookKeyGeneratorGetInstance() {
     var tmp = this.getInstance(type);
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       console.log("[KeyGenerator.getInstance()]: type: " + type);
       console.log("[KeyGenerator.getInstance()]: cipherObj: " + tmp);
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -758,10 +752,10 @@ function hookKeyGeneratorGetInstance2() {
     var tmp = this.getInstance(alg, provider);
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       console.log("[KeyGenerator.getInstance2()]: Algorithm: " + alg);
       console.log("[KeyGenerator.getInstance2()]: Provider: " + provider);
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -778,10 +772,10 @@ function hookKeyGeneratorGetInstance3() {
     var tmp = this.getInstance(alg, provider);
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       console.log("[KeyGenerator.getInstance2()]: Algorithm: " + alg);
       console.log("[KeyGenerator.getInstance2()]: Provider: " + provider);
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -802,14 +796,14 @@ function hookKeyGeneratorInit() {
     var tmp = this.init(length, secureRandom);
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
     if (!doNotHookFileNames.includes(caller.getFileName()) || hookAllClasses) {
-      console.log(caller.getFileName());
+      console.log("Caller: " + caller.getFileName());
       console.log(
         "[KeyGenerator.init()]: secureRandom:" +
           secureRandom +
           " , cipherObj: " +
           this
       );
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
       console.log("##############################################");
@@ -841,7 +835,7 @@ function hookKeyGeneratorGenerateKey() {
       );
       console.log("Generated key: " + base64_key);
 
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
     }
@@ -867,12 +861,90 @@ function hookKeyPairGeneratorGetInstance() {
   ].overload("java.lang.String");
   keyPairGetInstance.implementation = function (alg) {
     var caller = Java.use("java.lang.Exception").$new().getStackTrace()[1];
-    console.log(caller.getFileName());
+    console.log("Caller: " + caller.getFileName());
     console.log("[KeyPairGenerator.getInstance()]: Algorithm:" + alg);
-    if (printStacktrace) {
+    if (enableStacktracePrinting) {
       printStacktrace();
     }
     console.log("##############################################");
     return this.getInstance(alg);
   };
+}
+
+function printStacktrace() {
+  var stacktrace = Java.use("android.util.Log")
+    .getStackTraceString(Java.use("java.lang.Exception").$new())
+    .replace("java.lang.Exception", "");
+  console.log(stacktrace);
+}
+
+function dumpByteArray(title, byteArr) {
+  if (byteArr != null) {
+    try {
+      var buff = new ArrayBuffer(byteArr.length);
+      var dtv = new DataView(buff);
+      for (var i = 0; i < byteArr.length; i++) {
+        /*
+          Frida sucks sometimes and returns different byteArr.length between ArrayBuffer(byteArr.length) and for(..; i < byteArr.length;..).
+          It occurred even when Array.copyOf was done to work on copy.
+          */
+        dtv.setUint8(i, byteArr[i]);
+      }
+      console.log(title + ":\n");
+      console.log(_hexdumpJS(dtv.buffer, 0, byteArr.length));
+    } catch (error) {
+      console.log("Exception has occured in hexdump");
+    }
+  } else {
+    console.log("byteArr is null!");
+  }
+}
+
+function _hexdumpJS(arrayBuffer, offset, length) {
+  var view = new DataView(arrayBuffer);
+  offset = offset || 0;
+  length = length || arrayBuffer.byteLength;
+
+  var out =
+    _fillUp("Offset", 8, " ") +
+    "  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n";
+  var row = "";
+  for (var i = 0; i < length; i += 16) {
+    row += _fillUp(offset.toString(16).toUpperCase(), 8, "0") + "  ";
+    var n = Math.min(16, length - offset);
+    var string = "";
+    for (var j = 0; j < 16; ++j) {
+      if (j < n) {
+        var value = view.getUint8(offset);
+        string += value >= 32 && value < 128 ? String.fromCharCode(value) : ".";
+        row += _fillUp(value.toString(16).toUpperCase(), 2, "0") + " ";
+        offset++;
+      } else {
+        row += "   ";
+        string += " ";
+      }
+    }
+    row += " " + string + "\n";
+  }
+  out += row;
+  return out;
+}
+
+function _fillUp(value, count, fillWith) {
+  var l = count - value.length;
+  var ret = "";
+  while (--l > -1) ret += fillWith;
+  return ret + value;
+}
+
+function decodeMode(mode) {
+  if (mode == 1) return "Encrypt mode";
+  else if (mode == 2) return "Decrypt mode";
+  else if (mode == 3) return "Wrap mode";
+  else if (mode == 4) return "Unwrap mode";
+}
+
+function charArrayToString(charArray) {
+  if (charArray == null) return "(null)";
+  else return StringCls.$new(charArray);
 }

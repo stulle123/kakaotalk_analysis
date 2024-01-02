@@ -2,13 +2,11 @@
 Debug Deep Links.
 */
 
-import { printStacktrace } from "./utils.js";
+const enableStacktracePrinting = false;
 
 Java.perform(function () {
   deepLinkSniffer();
 });
-
-const printStacktrace = false;
 
 function deepLinkSniffer() {
   var Intent = Java.use("android.content.Intent");
@@ -17,11 +15,13 @@ function deepLinkSniffer() {
       this.getAction() !== null ? this.getAction().toString() : false;
     if (action) {
       console.log("[*] Intent.getData() was called");
-      console.log("[*] Activity: " + this.getComponent().getClassName());
+      if (this.getComponent()) {
+        console.log("[*] Activity: " + this.getComponent().getClassName());
+      }
       console.log("[*] Action: " + action);
       var uri = this.getData();
 
-      if (printStacktrace) {
+      if (enableStacktracePrinting) {
         printStacktrace();
       }
 
@@ -44,4 +44,11 @@ function deepLinkSniffer() {
     }
     return this.getData();
   };
+}
+
+function printStacktrace() {
+  var stacktrace = Java.use("android.util.Log")
+    .getStackTraceString(Java.use("java.lang.Exception").$new())
+    .replace("java.lang.Exception", "");
+  console.log(stacktrace);
 }
